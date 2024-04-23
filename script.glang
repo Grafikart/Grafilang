@@ -1,0 +1,6 @@
+A = 3 + 2
+SI A == 5 ALORS
+    AFFICHER "A vaut 5 !"
+SINON
+    AFFICHER "A ne vaut pas 5 :("
+FIN
