@@ -1,159 +1,289 @@
+import { ParseError } from "./errors.ts";
+
 export enum TokenType {
-    Number = "Number",
-    Identifier = "Identifier",
-    Literal = "Literal", // 2 3 "music"
-    Operator = "Operator", // + < -
-    Separator = "Separator", // }, (, ;
-    Keyword = "Keyword" // if, while, return
+  // Single-character tokens.
+  LEFT_PAREN = "(",
+  RIGHT_PAREN = ")",
+  LEFT_BRACE = "[",
+  RIGHT_BRACE = "]",
+  COMMA = ",",
+  DOT = ".",
+  MINUS = "-",
+  PLUS = "+",
+  SEMICOLON = ";",
+  SLASH = "/",
+  STAR = "*",
+
+  // One or two character tokens.
+  BANG = "!",
+  BANG_EQUAL = "!=",
+  EQUAL = "=",
+  EQUAL_EQUAL = "==",
+  GREATER = ">",
+  GREATER_EQUAL = ">=",
+  LESS = "<",
+  LESS_EQUAL = "<=",
+
+  // Literals.
+  IDENTIFIER = "Identifiant",
+  STRING = "Chaine",
+  NUMBER = "Nombre",
+
+  // Keywords.
+  IF = "Condition",
+  AND = "Et",
+  CLASS = "Classe",
+  ELSE = "Sinon",
+  FALSE = "Faux",
+  TRUE = "Vrai",
+  PRINT = "Afficher",
+  THEN = "Alors",
+
+  EOF = "Fin",
 }
+
+const Keywords = new Map([
+  ["and", TokenType.AND],
+  ["et", TokenType.AND],
+  ["class", TokenType.CLASS],
+  ["else", TokenType.ELSE],
+  ["sinon", TokenType.ELSE],
+  ["alors", TokenType.THEN],
+  ["false", TokenType.FALSE],
+  ["faux", TokenType.FALSE],
+  ["true", TokenType.TRUE],
+  ["vrai", TokenType.TRUE],
+  ["print", TokenType.PRINT],
+  ["afficher", TokenType.PRINT],
+  ["si", TokenType.IF],
+  ["if", TokenType.IF],
+]);
+
+export type Position = [start: number, end: number, column: number];
 
 export type Token = {
-    type: TokenType,
-    value: string,
-    start: number,
-    end: number,
-    line: number
+  type: TokenType;
+  value: string | null | number;
+  position: Position;
+};
+
+let source: string = "";
+let tokens: Token[] = [];
+let line = 1;
+let cursor = 0;
+let start = 0;
+let lastLine = 0;
+
+export function parseTokens(s: string): Token[] {
+  source = s;
+  while (!isEnd()) {
+    start = cursor;
+    scanToken();
+  }
+
+  addToken(TokenType.EOF);
+  return tokens;
 }
 
-const operators = ['+', '<', '>', '-', '*', '=']
-const spaces = ['\n', '\t', '\r', ' ']
-const quotes = ['"', "'", "`"]
-const separators = ['{', '}', '(', ')', '[', ']']
-const keywords = ["si", "alors", "faire", "do", "if", "tanque", "for", "pourchaque", "foreach", "sinon", "else", "fin", "end"]
-const breaks = [
-    ...operators,
-    ...separators,
-    ...spaces
-]
+function scanToken() {
+  const c = advance();
+  switch (c) {
+    case "\0":
+      break;
+    case "(":
+      addToken(TokenType.LEFT_PAREN);
+      break;
+    case ")":
+      addToken(TokenType.RIGHT_PAREN);
+      break;
+    case "{":
+      addToken(TokenType.LEFT_BRACE);
+      break;
+    case "}":
+      addToken(TokenType.RIGHT_BRACE);
+      break;
+    case ",":
+      addToken(TokenType.COMMA);
+      break;
+    case ".":
+      addToken(TokenType.DOT);
+      break;
+    case "-":
+      addToken(TokenType.MINUS);
+      break;
+    case "+":
+      addToken(TokenType.PLUS);
+      break;
+    case ";":
+      addToken(TokenType.SEMICOLON);
+      break;
+    case "*":
+      addToken(TokenType.STAR);
+      break;
+    case "!":
+      addToken(match("=") ? TokenType.BANG_EQUAL : TokenType.BANG);
+      break;
+    case "=":
+      addToken(match("=") ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+      break;
+    case "<":
+      addToken(match("=") ? TokenType.LESS_EQUAL : TokenType.LESS);
+      break;
+    case ">":
+      addToken(match("=") ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+      break;
+    case "/":
+      if (match("/")) {
+        // Un commentaire s'étend jusqu'à la fin de la ligne.
+        while (peek() !== "\n" && !isEnd()) advance();
+      } else {
+        addToken(TokenType.SLASH);
+      }
+      break;
+    case " ":
+    case "\r":
+    case "\t":
+      // Ignore whitespace.
+      break;
 
-export class Lexer {
-
-    #line = 0
-    #column = 0
-    #charIndex = 0
-    #str = ''
-    #tokens: Token[] = []
-
-    static parse (str: string) {
-        return new Lexer().parse(str)
-    }
-
-    parse (str: string) {
-        this.#str = str
-        this.#column = 0
-        this.#line = 0
-        this.#charIndex = 0
-        this.#tokens = []
-
-        while(this.#charIndex < this.#str.length) {
-            const char = this.#str[this.#charIndex]
-            if (separators.includes(char)) {
-                this.#pushToken(TokenType.Separator, 1)
-            } else if (operators.includes(char)) {
-                this.#pushOperator()
-            } else if (char === "\n") {
-                this.#nextLine()
-            } else if (quotes.includes(char)) {
-                this.#pushQuotedLiteral(char)
-            } else if (quotes.includes(char)) {
-                this.#pushQuotedLiteral(char)
-            } else if (isNumber(char)) {
-                this.#pushNumber()
-            } else if (isLetter(char)) {
-                this.#pushIdentifier()
-            } else {
-                this.#nextChar()
-            }
-        }
-
-        return this.#tokens
-    }
-
-    #pushOperator() {
-        let operatorLength = 1
-        if (['>=', '<=', '=='].includes(this.#str.slice(this.#charIndex, this.#charIndex + 2))) {
-            operatorLength = 2
-        }
-        this.#pushToken(TokenType.Operator, operatorLength)
-    }
-
-    /**
-     * Enregistre un nouveau token
-     */
-    #pushToken (type: TokenType, length: number) {
-        this.#tokens.push({
-            type,
-            value: this.#str.slice(this.#charIndex, this.#charIndex + length),
-            start: this.#column,
-            end: this.#column + length,
-            line: this.#line
-        })
-        this.#column += length
-        this.#charIndex += length
-    }
-
-    /**
-     * Détecte les chaine de caractère (entre quillemet)
-     */
-    #pushQuotedLiteral(quote: string) {
-        let i = this.#charIndex + 1
-        while (i < this.#str.length) {
-            // We encountered the end of the quoted string
-            if(this.#str[i] === quote && this.#str[i - 1] !== "\\") {
-                break;
-            }
-            i++
-        }
-        this.#pushToken(TokenType.Literal, i - this.#charIndex + 1)
-    }
-
-    #pushIdentifier() {
-        let i = this.#charIndex + 1;
-        while (i < this.#str.length) {
-            if (!isIdentifierCharacter(this.#str[i])) {
-                break;
-            }
-            i++
-        }
-        const str = this.#str.slice(this.#charIndex, i)
-        this.#pushToken(keywords.includes(str.toLowerCase()) ? TokenType.Keyword : TokenType.Identifier, i - this.#charIndex)
-    }
-
-    #pushNumber() {
-        let i = this.#charIndex + 1;
-        while (i < this.#str.length) {
-            if (!isNumber(this.#str[i])) {
-                break;
-            }
-            i++
-        }
-        this.#pushToken(TokenType.Literal, i - this.#charIndex)
-    }
-
-    #nextChar () {
-        this.#column++
-        this.#charIndex++
-    }
-
-    #nextLine () {
-        this.#column = 0
-        this.#charIndex++
-        this.#line++
-    }
-
-
+    case "\n":
+      line++;
+      lastLine = start;
+      break;
+    case '"':
+      string();
+      break;
+    default:
+      if (isDigit(c)) {
+        number();
+      } else if (isAlpha(c)) {
+        identifier();
+      } else {
+        throw new ParseError(`${c} inattendu`, line, column());
+      }
+  }
 }
 
-function isLetter(str: string): boolean {
-    const code = str.toLowerCase().charCodeAt(0)
-    return code >= 97 && code <= 122
+/**
+ * Reconnait un identifiant (variable, fonction, mot clef)
+ */
+function identifier() {
+  while (isAlphaNumeric(peek())) {
+    advance();
+  }
+
+  const text = source.substring(start, cursor);
+  const keyword = Keywords.get(text.toLowerCase());
+
+  // La chaine est un mot clef connu
+  if (keyword) {
+    addToken(keyword, text);
+    return;
+  }
+  addToken(TokenType.IDENTIFIER, text);
 }
 
-function isNumber(str: string): boolean {
-    const code = str.charCodeAt(0)
-    return code >= 48 && code <= 57
+/**
+ * Reconnait une chaine de caractère
+ */
+function string() {
+  // Avance tant qu'on ne rencontre pas un "
+  while (peek() !== '"' && !isEnd()) {
+    if (peek() === "\n") {
+      line++;
+    }
+    advance();
+  }
+
+  if (isEnd()) {
+    throw new ParseError(
+      "Chaine de caractère non fermée",
+      line,
+      start,
+      column() + cursor - start,
+    );
+  }
+
+  // On avance au dela du guillemet fermant
+  advance();
+  addToken(TokenType.STRING, source.substring(start + 1, cursor - 1));
 }
 
-function isIdentifierCharacter(str: string): boolean {
-    return isLetter(str) || str === '_' || isNumber(str)
+/**
+ * Reconnait un nombre
+ */
+function number() {
+  while (isDigit(peek())) {
+    advance();
+  }
+
+  if (peek() === "." && isDigit(peek(2))) {
+    // Consomme le "."
+    advance();
+    while (isDigit(peek())) {
+      advance();
+    }
+  }
+
+  addToken(TokenType.NUMBER, parseFloat(source.substring(start, cursor)));
+}
+
+/**
+ * Regarde le caractère suivant (lookahead)
+ */
+function peek(n = 1) {
+  if (isEnd()) return "\0";
+  return source.charAt(cursor + n - 1);
+}
+
+/**
+ * Avance, mais de manière conditionnelle
+ */
+function match(expected: string): boolean {
+  if (isEnd()) return false;
+  if (source.charAt(cursor) !== expected) return false;
+
+  cursor++;
+  return true;
+}
+
+/**
+ * Avance d'un cran vers l'avant
+ */
+function advance() {
+  return source[cursor++];
+}
+
+/**
+ * Le curseur est à la fin de la source
+ */
+function isEnd() {
+  return cursor >= source.length;
+}
+
+/**
+ * Pousse un nouveau token dans le lexer
+ */
+function addToken(type: TokenType, value?: string | number | null) {
+  tokens.push({
+    type: type,
+    value: value === undefined ? source.substring(start, cursor) : value,
+    position: [start, cursor, line],
+  });
+}
+
+function column(): number {
+  return cursor - 1 - lastLine;
+}
+
+function isDigit(c: string): boolean {
+  return c >= "0" && c <= "9";
+}
+
+function isAlpha(c: string): boolean {
+  return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_";
+}
+
+function isAlphaNumeric(c: string): boolean {
+  return isAlpha(c) || isDigit(c);
 }

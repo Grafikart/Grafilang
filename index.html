@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/vite.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Grafilang demo</title>
+    <style>
+        body {
+            font-family: monospace;
+            margin: 0;
+            padding: 0;
+        }
+
+        textarea {
+            font-family: monospace;
+            border: solid 1px #dce6f0;
+            border-radius: 0;
+            resize: none;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr 1fr;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        pre {
+            margin: 0;
+            display: flex;
+            overflow: auto;
+            background-color: #f3f6fa;
+            border: solid 1px #dce6f0;
+        }
+
+        code {
+            width: 100%;
+            height: 100%;
+            padding: .5rem;
+        }
+
+        .error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border-color: #991b1b;
+        }
+
+        @media (min-width: 700px) {
+            .layout {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <textarea>AFFICHER 3 + 4 + 5
+AFFICHER "Bonjour" + " les" + " gens"</textarea>
+    <pre>
+      <code></code>
+    </pre>
+</div>
+<script type="module" src="/src/front.ts"></script>
+</body>
+</html>

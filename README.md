@@ -1,15 +1,9 @@
-# grafilang
+# GrafiLang
 
-To install dependencies:
+Langage de programmation personnalisé qui servira de support dans le cadre de la formation Algorithmique.
 
-```bash
-bun install
-```
+## Objectif
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.0.25. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+- Syntaxe simple (peu de ponctuations)
+- Mots clef en français (pour les non bilingues)
+- Interprétable côté navigateur

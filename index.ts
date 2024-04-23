@@ -1,12 +1,3 @@
-import { ASTBuilder } from "./src/ast.ts";
-import {Lexer} from "./src/lexer.ts";
+import { run } from "./src/runner";
 
-const script = await Bun.file('./script.glang').text()
-console.log('=========')
-console.log(JSON.stringify(
-    new ASTBuilder(Lexer.parse(script)).getTree(),
-    null,
-    2
-))
-
-
+run(await Bun.file("./script.glang").text());
