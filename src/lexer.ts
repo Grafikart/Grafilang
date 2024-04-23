@@ -16,15 +16,9 @@ export type Token = {
 }
 
 const operators = ['+', '<', '>', '-', '*', '=']
-const spaces = ['\n', '\t', '\r', ' ']
 const quotes = ['"', "'", "`"]
 const separators = ['{', '}', '(', ')', '[', ']']
 const keywords = ["si", "alors", "faire", "do", "if", "tanque", "for", "pourchaque", "foreach", "sinon", "else", "fin", "end"]
-const breaks = [
-    ...operators,
-    ...separators,
-    ...spaces
-]
 
 export class Lexer {
 

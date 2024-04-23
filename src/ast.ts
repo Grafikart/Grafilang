@@ -1,4 +1,5 @@
 import { TokenType, type Token } from "./lexer.ts"
+import {SyntaxError} from "./errors.ts";
 
 type Program = {
     type: 'Program',
@@ -6,7 +7,7 @@ type Program = {
 }
 
 type ExpressionStatement = {
-    type: 'ExpressionStatement', 
+    type: 'ExpressionStatement',
     expression: Expression
 }
 
@@ -39,7 +40,6 @@ type Expression = AssignmentExpression | BinaryExpression | Literal | Identifier
 export class ASTBuilder {
 
     #tokens: Token[] = []
-    #currentIndex = 0
 
     constructor(tokens: Token[]) {
         this.#tokens = tokens
@@ -58,8 +58,8 @@ export class ASTBuilder {
         const currentToken = this.#tokens[index]
         const nextToken = this.#tokens[index + 1]
         if (currentToken.type === TokenType.Identifier) {
-            if (!nextToken || nextToken.type !== TokenType.Operator || nextToken.value === '=') {
-                throw new Error('Unknown statement, there must be an assignation for ' + currentToken.value)
+            if (!nextToken || nextToken.type !== TokenType.Operator || nextToken.value !== '=') {
+                throw new SyntaxError(nextToken, `après "${currentToken.value}"`)
             }
             return {
                 type: 'ExpressionStatement',
@@ -73,7 +73,8 @@ export class ASTBuilder {
                 },
             }
         }
-        return {}
+
+        return {} as any
     }
 
     #buildExpression (index: number): Expression {
