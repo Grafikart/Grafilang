@@ -49,8 +49,6 @@ export class Lexer {
                 this.#nextLine()
             } else if (quotes.includes(char)) {
                 this.#pushQuotedLiteral(char)
-            } else if (quotes.includes(char)) {
-                this.#pushQuotedLiteral(char)
             } else if (isNumber(char)) {
                 this.#pushNumber()
             } else if (isLetter(char)) {
