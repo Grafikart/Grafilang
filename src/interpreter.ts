@@ -8,7 +8,6 @@ import {
   ExpressionType,
   LiteralExpression,
   LogicalExpression,
-  Program,
   Statement,
   StatementType,
   TokenType,
@@ -16,13 +15,16 @@ import {
   VariableExpression,
   WhileStatement,
 } from "./type.ts";
+import { buildASTTree } from "./ast.ts";
+import { parseTokens } from "./lexer.ts";
 
 type Value = LiteralExpression["value"];
 const globalMemory = new Memory();
 let blockMemory = globalMemory;
 let stdOut = (_: unknown) => {};
 
-export function interpret(ast: Program): string {
+export function interpret(source: string): string {
+  const ast = buildASTTree(parseTokens(source));
   let out: unknown[] = [];
   stdOut = (v) => out.push(v);
   if (!import.meta.env.TEST) {

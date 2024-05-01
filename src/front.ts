@@ -1,4 +1,5 @@
-import {run} from "./runner.ts";
+import { interpret } from "./interpreter.ts";
+import { CodeError } from "./errors.ts";
 
 const textarea = document.querySelector("textarea")!;
 const code = document.querySelector("code")!;
@@ -16,13 +17,17 @@ export function debounce<T extends (...args: any[]) => any>(
 }
 
 const runCode = debounce(() => {
+  const source = textarea.value;
   try {
-    code.innerText = `${run(textarea.value)}`;
+    code.innerText = `${interpret(source)}`;
     code.classList.remove("error");
   } catch (e) {
     code.classList.add("error");
-    code.textContent = `${e}`;
-    console.error(e);
+    if (e instanceof CodeError) {
+      code.textContent = e.withSource(source);
+    } else {
+      code.textContent = `${e}`;
+    }
   }
 }, 500);
 
