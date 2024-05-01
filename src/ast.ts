@@ -1,5 +1,6 @@
 import { UnexpectedTokenError } from "./errors.ts";
 import {
+  BlockStatement,
   DeclarationStatement,
   Expression,
   ExpressionType,
@@ -9,6 +10,7 @@ import {
   StatementType,
   Token,
   TokenType,
+  WhileStatement,
 } from "./type.ts";
 
 let tokens: Token[] = [];
@@ -47,13 +49,14 @@ function statement(): Statement {
       position: expr.position,
     };
   }
+  if (eat(TokenType.WHILE)) {
+    return whileStatement();
+  }
   if (eat(TokenType.LEFT_BRACE)) {
-    const token = peek();
-    return {
-      type: StatementType.Block,
-      body: blockStatements(),
-      position: [token.position[0], previous().position[1], token.position[2]],
-    };
+    return blockStatement(
+      [TokenType.RIGHT_BRACE],
+      `"}" attendu à la fin d'un block`,
+    );
   }
   const expr = expression();
   return {
@@ -64,25 +67,48 @@ function statement(): Statement {
 }
 
 function ifStatement(): IfStatement {
+  const start = previous();
   const condition = expression();
-  eatOrFail(TokenType.THEN, "ALORS est attendu à la fin d'une condition");
-  const right = statement();
-  const wrong = eat(TokenType.ELSE) ? statement() : null;
-  eatOrFail(TokenType.END, "FIN est attendu pour clôturer une condition");
+  eatOrFail([TokenType.THEN], "ALORS est attendu à la fin d'une condition");
+  const right = blockStatement(
+    [TokenType.END, TokenType.ELSE],
+    `"FIN" attendu à la fin d'une condition`,
+  );
+  const wrong = eat(TokenType.ELSE) ? blockStatement([TokenType.END]) : null;
   return {
     type: StatementType.If,
     condition,
     right,
     wrong,
+    position: [start.position[0], previous().position[1], start.position[2]],
+  };
+}
+
+function whileStatement(): WhileStatement {
+  debugger;
+  const start = previous();
+  const condition = expression();
+  const end = eatOrFail(
+    [TokenType.THEN],
+    `"FAIRE" est attendu après la condition pour une boucle`,
+  );
+  return {
+    type: StatementType.While,
+    condition: condition,
+    body: blockStatement(
+      [TokenType.END],
+      `"FIN" attendu à la fin d'une boucle`,
+    ),
+    position: [start.position[0], end.position[1], start.position[2]],
   };
 }
 
 function declarationStatement(): DeclarationStatement {
   const name = eatOrFail(
-    TokenType.IDENTIFIER,
+    [TokenType.IDENTIFIER],
     `Un nom de variable est attendu à gauche d'un "="`,
   );
-  eatOrFail(TokenType.EQUAL, `"=" attendu pour déclarer une variable`);
+  eatOrFail([TokenType.EQUAL], `"=" attendu pour déclarer une variable`);
   const expr = expression();
   return {
     type: StatementType.Declaration,
@@ -92,16 +118,21 @@ function declarationStatement(): DeclarationStatement {
   };
 }
 
-function blockStatements(): Statement[] {
+function blockStatement(
+  delimiter = [TokenType.RIGHT_BRACE] as TokenType[],
+  errorMessage = `"}" attendu pour fermer le block précédent`,
+): BlockStatement {
+  const token = peek();
   const statements: Statement[] = [];
-  while (!checkType(TokenType.RIGHT_BRACE) && !isEnd()) {
+  while (!checkType(...delimiter) && !isEnd()) {
     statements.push(statement());
   }
-  eatOrFail(
-    TokenType.RIGHT_BRACE,
-    `"}" attendu pour fermer le block précédent`,
-  );
-  return statements;
+  eatOrFail(delimiter, errorMessage);
+  return {
+    type: StatementType.Block,
+    body: statements,
+    position: [token.position[0], previous().position[1], token.position[2]],
+  };
 }
 
 /**
@@ -281,7 +312,7 @@ function primaryExpression(): Expression {
   if (eat(TokenType.LEFT_PAREN)) {
     const expr = expression();
     const closeToken = eatOrFail(
-      TokenType.RIGHT_PAREN,
+      [TokenType.RIGHT_PAREN],
       `")" attendu pour fermer la parenthèse ouvrante`,
     );
     return {
@@ -299,11 +330,10 @@ function primaryExpression(): Expression {
  * Navigation
  */
 
-function eatOrFail<T extends TokenType>(type: T, message: string) {
-  if (checkType(type)) {
+function eatOrFail<T extends TokenType>(types: T[], message: string) {
+  if (checkType(...types)) {
     return advance() as Token & { type: T };
   }
-  console.log(peek());
   throw new UnexpectedTokenError(peek(), message);
 }
 
@@ -317,8 +347,8 @@ function eat(...types: TokenType[]): boolean {
   return false;
 }
 
-function checkType(type: TokenType): boolean {
-  return peek().type === type;
+function checkType(...types: TokenType[]): boolean {
+  return types.includes(peek().type);
 }
 
 function peek(n = 1): Token {

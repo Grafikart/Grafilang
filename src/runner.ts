@@ -62,7 +62,10 @@ ${spaces(column)}${e.message}
 }
 
 function getColumn(position: Position, source: string): number {
-  return position[0] - Math.max(source.lastIndexOf("\n", position[0]) + 1, 0);
+  return Math.max(
+    position[0] - Math.max(source.lastIndexOf("\n", position[0]) + 1, 0),
+    0,
+  );
 }
 
 function positionToString(position: Position, column: number): string {

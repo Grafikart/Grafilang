@@ -21,6 +21,11 @@ const Keywords = new Map([
   ["end", TokenType.END],
   ["fin", TokenType.END],
   ["var", TokenType.VAR],
+  ["do", TokenType.THEN],
+  ["tantque", TokenType.WHILE],
+  ["while", TokenType.WHILE],
+  ["faire", TokenType.THEN],
+  ["var", TokenType.VAR],
 ]);
 
 let source: string = "";

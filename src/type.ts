@@ -41,6 +41,7 @@ export enum TokenType {
   THEN = "Alors",
   VAR = "Var",
   END = "Fin",
+  WHILE = "TantQue",
 
   EOF = "EOF",
 }
@@ -127,6 +128,7 @@ export enum StatementType {
   Declaration = "Declaration",
   Block = "Block",
   If = "If",
+  While = "While",
 }
 
 export type Program = {
@@ -158,8 +160,16 @@ export type BlockStatement = {
 export type IfStatement = {
   type: StatementType.If;
   condition: Expression;
-  right: Statement;
-  wrong: Statement | null;
+  right: BlockStatement;
+  wrong: BlockStatement | null;
+  position: Position;
+};
+
+export type WhileStatement = {
+  type: StatementType.While;
+  condition: Expression;
+  body: BlockStatement;
+  position: Position;
 };
 
 export type Statement =
@@ -167,4 +177,5 @@ export type Statement =
   | PrintStatement
   | BlockStatement
   | IfStatement
+  | WhileStatement
   | DeclarationStatement;

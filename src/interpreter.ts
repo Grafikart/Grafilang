@@ -3,6 +3,7 @@ import { Memory } from "./memory.ts";
 import {
   AssignmentExpression,
   BinaryExpression,
+  BlockStatement,
   Expression,
   ExpressionType,
   LiteralExpression,
@@ -13,36 +14,34 @@ import {
   TokenType,
   UnaryExpression,
   VariableExpression,
+  WhileStatement,
 } from "./type.ts";
 
 type Value = LiteralExpression["value"];
 const globalMemory = new Memory();
 let blockMemory = globalMemory;
+let stdOut = (_: unknown) => {};
 
-export function interpret(ast: Program): Value {
+export function interpret(ast: Program): string {
+  let out: unknown[] = [];
+  stdOut = (v) => out.push(v);
   if (!import.meta.env.TEST) {
-    console.log(ast);
+    console.log("AST:", ast);
   }
   blockMemory = globalMemory;
   blockMemory.clear();
-  return evalStatements(ast.body) ?? "";
+  ast.body.map(evalStatement);
+  return out.join("\n");
 }
 
-function evalStatements(statements: Statement[]): Value | undefined {
-  const results = statements.map(evalStatement).filter((v) => v !== undefined);
-  if (results.length > 0) {
-    return results.join("\n");
-  }
-  return;
-}
-
-function evalStatement(statement: Statement | null): unknown {
+function evalStatement(statement: Statement | null): void {
   if (statement === null) {
     return;
   }
   switch (statement.type) {
     case StatementType.Print:
-      return evalExpression(statement.expression);
+      stdOut(evalExpression(statement.expression));
+      return;
     case StatementType.Expression:
       evalExpression(statement.expression);
       return;
@@ -50,11 +49,8 @@ function evalStatement(statement: Statement | null): unknown {
       blockMemory.define(statement.name, evalExpression(statement.expression));
       return;
     case StatementType.Block:
-      const previousMemory = blockMemory;
-      blockMemory = new Memory(blockMemory);
-      const results = evalStatements(statement.body);
-      blockMemory = previousMemory;
-      return results;
+      evalBlock(statement);
+      return;
     case StatementType.If:
       const conditionValue = evalExpression(statement.condition);
       ensureBoolean(
@@ -62,8 +58,33 @@ function evalStatement(statement: Statement | null): unknown {
         `Un booléen doit être utilisé pour une condition`,
         statement.condition,
       );
-      return evalStatement(conditionValue ? statement.right : statement.wrong);
+      evalStatement(conditionValue ? statement.right : statement.wrong);
+      return;
+    case StatementType.While:
+      evalWhile(statement);
+      return;
   }
+}
+
+function evalWhile(statement: WhileStatement): void {
+  let limiter = 0; // Pour éviter les boucles infinies, on limite à 10 000 itérations
+  while (evalExpression(statement.condition)) {
+    limiter++;
+    if (limiter > 10_000) {
+      throw new RuntimeError(
+        "Boucle infinie, la condition de cette boucle ne devient jamais fausse",
+        statement.condition,
+      );
+    }
+    evalBlock(statement.body);
+  }
+}
+
+function evalBlock(statement: BlockStatement): void {
+  const previousMemory = blockMemory;
+  blockMemory = new Memory(blockMemory);
+  statement.body.map(evalStatement);
+  blockMemory = previousMemory;
 }
 
 function evalExpression(expr: Expression): Value {

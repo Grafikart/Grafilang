@@ -111,4 +111,16 @@ describe("Grafilang", () => {
   ])("comprend les opérateurs logiques %s -> %s", (code, expected) => {
     expect(run("AFFICHER " + code)).toBe(expected);
   });
+
+  test(`les boucles "while" sont supportées`, () => {
+    expect(
+      run(`
+        VAR A = 1
+        TANTQUE A <= 3 FAIRE
+            AFFICHER A
+            A = A + 1
+        FIN
+        `),
+    ).toBe("1\n2\n3");
+  });
 });
