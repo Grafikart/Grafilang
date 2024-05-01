@@ -38,6 +38,7 @@ export enum TokenType {
   TRUE = "Vrai",
   PRINT = "Afficher",
   THEN = "Alors",
+  VAR = "Var",
 
   EOF = "Fin",
 }
@@ -57,9 +58,10 @@ const Keywords = new Map([
   ["afficher", TokenType.PRINT],
   ["si", TokenType.IF],
   ["if", TokenType.IF],
+  ["var", TokenType.VAR],
 ]);
 
-export type Position = [start: number, end: number, column: number];
+export type Position = [start: number, end: number, line: number];
 
 export type Token =
   | {
@@ -81,6 +83,13 @@ let start = 0;
 let lastLine = 0;
 
 export function parseTokens(s: string): Token[] {
+  // Reset state
+  tokens = [];
+  line = 1;
+  cursor = 0;
+  start = 0;
+  lastLine = 0;
+
   source = s;
   while (!isEnd()) {
     start = cursor;
@@ -157,7 +166,8 @@ function scanToken() {
       lastLine = start;
       break;
     case '"':
-      string();
+    case "'":
+      string(c);
       break;
     default:
       if (isDigit(c)) {
@@ -192,9 +202,9 @@ function identifier() {
 /**
  * Reconnait une chaine de caractère
  */
-function string() {
+function string(delimiter = '"') {
   // Avance tant qu'on ne rencontre pas un "
-  while (peek() !== '"' && !isEnd()) {
+  while (peek() !== delimiter && !isEnd()) {
     if (peek() === "\n") {
       line++;
     }
@@ -203,7 +213,7 @@ function string() {
 
   if (isEnd()) {
     throw new ParseError(
-      "Chaine de caractère non fermée",
+      `Chaine de caractère non fermée, ${delimiter} attendu`,
       line,
       start,
       column() + cursor - start,

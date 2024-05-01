@@ -1,52 +1,81 @@
 import {
+  AssignmentExpression,
   BinaryExpression,
   Expression,
+  ExpressionType,
   LiteralExpression,
   Program,
   Statement,
+  StatementType,
   UnaryExpression,
+  VariableExpression,
 } from "./ast.ts";
-import { TokenType } from "./lexer.ts";
-import { RuntimeError } from "./errors.ts";
+import {TokenType} from "./lexer.ts";
+import {RuntimeError} from "./errors.ts";
 
 type Value = LiteralExpression["value"];
 const memory = new Map<string, Value>();
 
 export function interpret(ast: Program): Value {
   memory.clear();
-  return ast.body.map(evalStatement).join("\n");
+  return ast.body.map(evalStatement).filter(v => v !== undefined).join("\n");
 }
 
 function evalStatement(statement: Statement): unknown {
   switch (statement.type) {
-    case "Print":
+    case StatementType.Print:
       return evalExpression(statement.expression);
-    case "Expression":
-      return "";
-    case "Assignment":
+    case StatementType.Expression:
+      evalExpression(statement.expression);
+      return;
+    case StatementType.Declaration:
+      const variableName = statement.name.value
+      if (memory.has(variableName)) {
+        throw new RuntimeError(`Impossible de redéclarer la variable ${variableName}`, statement.name)
+      }
       memory.set(statement.name.value, evalExpression(statement.expression));
+      return;
   }
 }
 
 function evalExpression(expr: Expression): Value {
   switch (expr.type) {
-    case "Binary":
+    case ExpressionType.Binary:
       return evalBinary(expr);
-    case "Unary":
+    case ExpressionType.Unary:
       return evalUnary(expr);
-    case "Literal":
+    case ExpressionType.Literal:
       return evalLiteral(expr);
-    case "Variable":
-      const value = memory.get(expr.name.value);
-      if (value === undefined) {
-        throw new RuntimeError(
-          `La variable ${expr.name.value} n'existe pas`,
-          expr,
-        );
-      }
-      return value;
+    case ExpressionType.Variable:
+      return evalVariable(expr)
+    case ExpressionType.Assignment:
+      return evalAssignment(expr)
   }
   return null;
+}
+
+function evalVariable(expr: VariableExpression): Value{
+  const value = memory.get(expr.name.value);
+  if (value === undefined) {
+    throw new RuntimeError(
+        `La variable ${expr.name.value} n'existe pas`,
+        expr,
+    );
+  }
+  return value;
+}
+
+function evalAssignment(expr: AssignmentExpression): Value {
+  const variableName = expr.variable.name.value
+  if (!memory.has(variableName)) {
+    throw new RuntimeError(
+        `La variable ${variableName} n'a pas été déclarée`,
+        expr,
+    );
+  }
+  const value = evalExpression(expr.value)
+  memory.set(variableName, value)
+  return value
 }
 
 function evalLiteral(expr: LiteralExpression): Value {

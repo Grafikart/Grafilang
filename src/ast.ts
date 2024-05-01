@@ -1,38 +1,53 @@
-import { Position, type Token, TokenType } from "./lexer.ts";
-import { UnexpectedTokenError } from "./errors.ts";
+import {Position, type Token, TokenType} from "./lexer.ts";
+import {UnexpectedTokenError} from "./errors.ts";
+
+export enum ExpressionType {
+  Literal = "Literal",
+  Binary = "Binary",
+  Unary = "Unary",
+  Variable = "Variable",
+  Assignment = "Assignment"
+}
+
+export enum StatementType {
+  Program = "Program",
+  Expression = "Expression",
+  Print = "Print",
+  Declaration = "Declaration"
+}
 
 export type Program = {
-  type: "Program";
+  type: StatementType.Program;
   body: Statement[];
 };
 
 export type PrintStatement = {
-  type: "Print";
+  type: StatementType.Print;
   expression: Expression;
   position: Position;
 };
 
 export type ExpressionStatement = {
-  type: "Expression";
+  type: StatementType.Expression;
   expression: Expression;
   position: Position;
 };
 
-export type AssignmentStatement = {
-  type: "Assignment";
+export type DeclarationStatement = {
+  type: StatementType.Declaration;
   expression: Expression;
   name: Token & { type: TokenType.IDENTIFIER };
   position: Position;
 };
 
 export type LiteralExpression = {
-  type: "Literal";
+  type: ExpressionType.Literal;
   value: string | number | boolean | null;
   position: Position;
 };
 
 export type BinaryExpression = {
-  type: "Binary";
+  type: ExpressionType.Binary;
   operator: Token;
   left: Expression;
   right: Expression;
@@ -40,39 +55,49 @@ export type BinaryExpression = {
 };
 
 export type UnaryExpression = {
-  type: "Unary";
+  type: ExpressionType.Unary;
   operator: Token;
   right: Expression;
   position: Position;
 };
 
 export type VariableExpression = {
-  type: "Variable";
+  type: ExpressionType.Variable;
   name: Token & { type: TokenType.IDENTIFIER };
+  position: Position;
+};
+
+export type AssignmentExpression = {
+  type: ExpressionType.Assignment;
+  variable: VariableExpression;
+  value: Expression,
   position: Position;
 };
 
 export type Statement =
   | ExpressionStatement
   | PrintStatement
-  | AssignmentStatement;
+  | DeclarationStatement;
 export type Expression =
   | BinaryExpression
   | UnaryExpression
   | LiteralExpression
+  | AssignmentExpression
   | VariableExpression;
 
 let tokens: Token[] = [];
 let cursor = 0;
 
 export function buildASTTree(t: Token[]): Program {
+  cursor =0
+  tokens = []
   tokens = t;
   const statements: Statement[] = [];
   while (!isEnd()) {
-    statements.push(assignment());
+    statements.push(declaration());
   }
   return {
-    type: "Program",
+    type: StatementType.Program,
     body: statements,
   };
 }
@@ -81,13 +106,13 @@ export function buildASTTree(t: Token[]): Program {
  * Statements
  */
 
-function assignment(): Statement {
-  if (peek(2).type === TokenType.EQUAL) {
-    const name = consume(TokenType.IDENTIFIER);
-    advance();
+function declaration(): Statement {
+  if (eat(TokenType.VAR)) {
+    const name = eatOrFail(TokenType.IDENTIFIER);
+    eatOrFail(TokenType.EQUAL)
     const expr = expression();
     return {
-      type: "Assignment",
+      type: StatementType.Declaration,
       name: name,
       expression: expr,
       position: [name.position[0], expr.position[1], name.position[2]],
@@ -97,17 +122,17 @@ function assignment(): Statement {
 }
 
 function statement(): Statement {
-  if (match(TokenType.PRINT)) {
+  if (eat(TokenType.PRINT)) {
     const expr = expression();
     return {
-      type: "Print",
+      type: StatementType.Print,
       expression: expr,
       position: expr.position,
     };
   }
   const expr = expression();
   return {
-    type: "Expression",
+    type: StatementType.Expression,
     expression: expr,
     position: expr.position,
   };
@@ -118,16 +143,34 @@ function statement(): Statement {
  */
 
 function expression(): Expression {
-  return equality();
+  return assignment();
+}
+
+function assignment(): Expression {
+  let expr = equality()
+  if (eat(TokenType.EQUAL)) {
+    const token = previous()
+    const right = assignment()
+    if (expr.type !== ExpressionType.Variable) {
+      throw new UnexpectedTokenError(token, TokenType.VAR)
+    }
+    expr = {
+      type: ExpressionType.Assignment,
+      variable: expr,
+      value: right,
+      position: [expr.position[0], right.position[1], expr.position[2]]
+    }
+  }
+  return expr
 }
 
 function equality(): Expression {
   let expr = comparison();
-  while (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+  while (eat(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
     const operator = previous();
     const right = comparison();
     expr = {
-      type: "Binary",
+      type: ExpressionType.Binary,
       operator,
       left: expr,
       right: right,
@@ -140,7 +183,7 @@ function equality(): Expression {
 function comparison(): Expression {
   let expr = term();
   while (
-    match(
+    eat(
       TokenType.GREATER,
       TokenType.GREATER_EQUAL,
       TokenType.LESS_EQUAL,
@@ -150,7 +193,7 @@ function comparison(): Expression {
     const operator = previous();
     const right = term();
     expr = {
-      type: "Binary",
+      type: ExpressionType.Binary,
       operator,
       left: expr,
       right: right,
@@ -162,11 +205,11 @@ function comparison(): Expression {
 
 function term(): Expression {
   let expr = factor();
-  while (match(TokenType.MINUS, TokenType.PLUS)) {
+  while (eat(TokenType.MINUS, TokenType.PLUS)) {
     const operator = previous();
     const right = factor();
     expr = {
-      type: "Binary",
+      type: ExpressionType.Binary,
       operator,
       left: expr,
       right: right,
@@ -178,11 +221,11 @@ function term(): Expression {
 
 function factor(): Expression {
   let expr = unary();
-  while (match(TokenType.SLASH, TokenType.STAR)) {
+  while (eat(TokenType.SLASH, TokenType.STAR)) {
     const operator = previous();
     const right = unary();
     expr = {
-      type: "Binary",
+      type: ExpressionType.Binary,
       operator,
       left: expr,
       right: right,
@@ -193,11 +236,11 @@ function factor(): Expression {
 }
 
 function unary(): Expression {
-  if (match(TokenType.MINUS, TokenType.BANG)) {
+  if (eat(TokenType.MINUS, TokenType.BANG)) {
     const operator = previous();
     const right = unary();
     return {
-      type: "Unary",
+      type: ExpressionType.Unary,
       operator: operator,
       right: right,
       position: right.position,
@@ -208,35 +251,35 @@ function unary(): Expression {
 
 function primary(): Expression {
   const token = peek();
-  if (match(TokenType.FALSE))
+  if (eat(TokenType.FALSE))
     return {
-      type: "Literal",
+      type: ExpressionType.Literal,
       value: false,
       position: token.position,
     };
-  if (match(TokenType.TRUE))
+  if (eat(TokenType.TRUE))
     return {
-      type: "Literal",
+      type: ExpressionType.Literal,
       value: true,
       position: token.position,
     };
-  if (match(TokenType.NUMBER, TokenType.STRING)) {
+  if (eat(TokenType.NUMBER, TokenType.STRING)) {
     return {
-      type: "Literal",
+      type: ExpressionType.Literal,
       value: previous().value,
       position: token.position,
     };
   }
-  if (match(TokenType.IDENTIFIER)) {
+  if (eat(TokenType.IDENTIFIER)) {
     return {
-      type: "Variable",
+      type: ExpressionType.Variable,
       name: previous() as Token & { type: "Identifier" },
       position: token.position,
     };
   }
-  if (match(TokenType.LEFT_PAREN)) {
+  if (eat(TokenType.LEFT_PAREN)) {
     const expr = expression();
-    const closeToken = consume(TokenType.RIGHT_PAREN);
+    const closeToken = eatOrFail(TokenType.RIGHT_PAREN);
     return {
       ...expr,
       position: [token.position[0], closeToken.position[1], token.position[2]],
@@ -249,7 +292,7 @@ function primary(): Expression {
  * Navigation
  */
 
-function consume<T extends TokenType>(type: T) {
+function eatOrFail<T extends TokenType>(type: T) {
   if (checkType(type)) {
     return advance() as Token & { type: T };
   }
@@ -257,7 +300,7 @@ function consume<T extends TokenType>(type: T) {
   throw new UnexpectedTokenError(token, type);
 }
 
-function match(...types: TokenType[]): boolean {
+function eat(...types: TokenType[]): boolean {
   for (const type of types) {
     if (checkType(type)) {
       advance();

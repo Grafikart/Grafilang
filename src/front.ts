@@ -18,6 +18,7 @@ export function debounce<T extends (...args: any[]) => any>(
 const runCode = debounce(() => {
   try {
     code.innerText = `${run(textarea.value)}`;
+    code.classList.remove("error");
   } catch (e) {
     code.classList.add("error");
     code.textContent = `${e}`;

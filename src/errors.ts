@@ -30,7 +30,7 @@ export class UnexpectedTokenError extends Error {
 export class RuntimeError extends Error {
   constructor(
     public message: string,
-    public expression: Expression,
+    public expression: Expression | Token,
   ) {
     super(`Erreur à l'exécution`);
   }
