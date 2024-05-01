@@ -61,11 +61,17 @@ const Keywords = new Map([
 
 export type Position = [start: number, end: number, column: number];
 
-export type Token = {
-  type: TokenType;
-  value: string | null | number;
-  position: Position;
-};
+export type Token =
+  | {
+      type: Exclude<TokenType, TokenType.NUMBER>;
+      value: string;
+      position: Position;
+    }
+  | {
+      type: TokenType.NUMBER;
+      value: number;
+      position: Position;
+    };
 
 let source: string = "";
 let tokens: Token[] = [];
@@ -225,7 +231,7 @@ function number() {
     }
   }
 
-  addToken(TokenType.NUMBER, parseFloat(source.substring(start, cursor)));
+  addToken(TokenType.NUMBER, source.substring(start, cursor));
 }
 
 /**
@@ -264,7 +270,17 @@ function isEnd() {
 /**
  * Pousse un nouveau token dans le lexer
  */
-function addToken(type: TokenType, value?: string | number | null) {
+function addToken(type: TokenType, value?: string) {
+  if (type === TokenType.NUMBER) {
+    tokens.push({
+      type: TokenType.NUMBER,
+      value: parseFloat(
+        value === undefined ? source.substring(start, cursor) : value,
+      ),
+      position: [start, cursor, line],
+    });
+    return;
+  }
   tokens.push({
     type: type,
     value: value === undefined ? source.substring(start, cursor) : value,

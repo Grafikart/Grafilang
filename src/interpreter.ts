@@ -10,8 +10,10 @@ import { TokenType } from "./lexer.ts";
 import { RuntimeError } from "./errors.ts";
 
 type Value = LiteralExpression["value"];
+const memory = new Map<string, Value>();
 
 export function interpret(ast: Program): Value {
+  memory.clear();
   return ast.body.map(evalStatement).join("\n");
 }
 
@@ -21,6 +23,8 @@ function evalStatement(statement: Statement): unknown {
       return evalExpression(statement.expression);
     case "Expression":
       return "";
+    case "Assignment":
+      memory.set(statement.name.value, evalExpression(statement.expression));
   }
 }
 
@@ -32,6 +36,15 @@ function evalExpression(expr: Expression): Value {
       return evalUnary(expr);
     case "Literal":
       return evalLiteral(expr);
+    case "Variable":
+      const value = memory.get(expr.name.value);
+      if (value === undefined) {
+        throw new RuntimeError(
+          `La variable ${expr.name.value} n'existe pas`,
+          expr,
+        );
+      }
+      return value;
   }
   return null;
 }

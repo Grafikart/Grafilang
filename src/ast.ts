@@ -18,6 +18,13 @@ export type ExpressionStatement = {
   position: Position;
 };
 
+export type AssignmentStatement = {
+  type: "Assignment";
+  expression: Expression;
+  name: Token & { type: TokenType.IDENTIFIER };
+  position: Position;
+};
+
 export type LiteralExpression = {
   type: "Literal";
   value: string | number | boolean | null;
@@ -39,8 +46,21 @@ export type UnaryExpression = {
   position: Position;
 };
 
-export type Statement = ExpressionStatement | PrintStatement;
-export type Expression = BinaryExpression | UnaryExpression | LiteralExpression;
+export type VariableExpression = {
+  type: "Variable";
+  name: Token & { type: TokenType.IDENTIFIER };
+  position: Position;
+};
+
+export type Statement =
+  | ExpressionStatement
+  | PrintStatement
+  | AssignmentStatement;
+export type Expression =
+  | BinaryExpression
+  | UnaryExpression
+  | LiteralExpression
+  | VariableExpression;
 
 let tokens: Token[] = [];
 let cursor = 0;
@@ -49,7 +69,7 @@ export function buildASTTree(t: Token[]): Program {
   tokens = t;
   const statements: Statement[] = [];
   while (!isEnd()) {
-    statements.push(statement());
+    statements.push(assignment());
   }
   return {
     type: "Program",
@@ -60,6 +80,21 @@ export function buildASTTree(t: Token[]): Program {
 /**
  * Statements
  */
+
+function assignment(): Statement {
+  if (peek(2).type === TokenType.EQUAL) {
+    const name = consume(TokenType.IDENTIFIER);
+    advance();
+    const expr = expression();
+    return {
+      type: "Assignment",
+      name: name,
+      expression: expr,
+      position: [name.position[0], expr.position[1], name.position[2]],
+    };
+  }
+  return statement();
+}
 
 function statement(): Statement {
   if (match(TokenType.PRINT)) {
@@ -192,6 +227,13 @@ function primary(): Expression {
       position: token.position,
     };
   }
+  if (match(TokenType.IDENTIFIER)) {
+    return {
+      type: "Variable",
+      name: previous() as Token & { type: "Identifier" },
+      position: token.position,
+    };
+  }
   if (match(TokenType.LEFT_PAREN)) {
     const expr = expression();
     const closeToken = consume(TokenType.RIGHT_PAREN);
@@ -207,9 +249,9 @@ function primary(): Expression {
  * Navigation
  */
 
-function consume(type: TokenType) {
+function consume<T extends TokenType>(type: T) {
   if (checkType(type)) {
-    return advance();
+    return advance() as Token & { type: T };
   }
   const token = peek();
   throw new UnexpectedTokenError(token, type);
@@ -233,9 +275,12 @@ function peek(n = 1): Token {
   return tokens[cursor + n - 1];
 }
 
-function advance(): Token {
+function advance(n = 1): Token {
   if (!isEnd()) {
     cursor++;
+  }
+  if (n > 1) {
+    return advance(n - 1);
   }
   return previous();
 }
