@@ -1,7 +1,8 @@
 import { buildASTTree } from "./ast.ts";
-import { parseTokens, Position } from "./lexer.ts";
+import { parseTokens } from "./lexer.ts";
 import { ParseError, RuntimeError, UnexpectedTokenError } from "./errors.ts";
 import { interpret } from "./interpreter.ts";
+import { Position } from "./type.ts";
 
 let source = "";
 
@@ -46,14 +47,18 @@ function underline(column: number, position: Position): string {
 }
 
 function throwParseError(e: ParseError, source: string) {
-  const errorPosition = [e.start, e.end ?? e.start + 1, e.line] as [number, number, number]
+  const errorPosition = [e.start, e.end ?? e.start + 1, e.line] as [
+    number,
+    number,
+    number,
+  ];
   const column = getColumn(errorPosition, source);
   throw `Erreur de syntaxe (${positionToString([e.start, e.end ?? e.start + 1, e.line], column)})
   
 ${getLine(e.line, source)}
 ${underline(column, errorPosition)}
 ${spaces(column)}${e.message}
-  `
+  `;
 }
 
 function getColumn(position: Position, source: string): number {
@@ -73,6 +78,6 @@ function getLine(index: number, source: string): string {
   );
 }
 
-function spaces (n: number): string {
-  return " ".repeat(n)
+function spaces(n: number): string {
+  return " ".repeat(n);
 }

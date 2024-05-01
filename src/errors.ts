@@ -1,5 +1,4 @@
-import { Expression } from "./ast.ts";
-import { Token } from "./lexer.ts";
+import { Expression, Token } from "./type.ts";
 
 export class ParseError extends Error {
   constructor(

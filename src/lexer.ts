@@ -1,53 +1,11 @@
 import { ParseError } from "./errors.ts";
-
-export enum TokenType {
-  // Single-character tokens.
-  LEFT_PAREN = "(",
-  RIGHT_PAREN = ")",
-  LEFT_BRACE = "{",
-  RIGHT_BRACE = "}",
-  LEFT_BRACKET = "[",
-  RIGHT_BRACKET = "]",
-  COMMA = ",",
-  DOT = ".",
-  MINUS = "-",
-  PLUS = "+",
-  SEMICOLON = ";",
-  SLASH = "/",
-  STAR = "*",
-
-  // One or two character tokens.
-  BANG = "!",
-  BANG_EQUAL = "!=",
-  EQUAL = "=",
-  EQUAL_EQUAL = "==",
-  GREATER = ">",
-  GREATER_EQUAL = ">=",
-  LESS = "<",
-  LESS_EQUAL = "<=",
-
-  // Literals.
-  IDENTIFIER = "Identifiant",
-  STRING = "Chaine",
-  NUMBER = "Nombre",
-
-  // Keywords.
-  IF = "Condition",
-  AND = "Et",
-  CLASS = "Classe",
-  ELSE = "Sinon",
-  FALSE = "Faux",
-  TRUE = "Vrai",
-  PRINT = "Afficher",
-  THEN = "Alors",
-  VAR = "Var",
-
-  EOF = "Fin",
-}
+import { Token, TokenType } from "./type.ts";
 
 const Keywords = new Map([
   ["and", TokenType.AND],
   ["et", TokenType.AND],
+  ["or", TokenType.OR],
+  ["ou", TokenType.OR],
   ["class", TokenType.CLASS],
   ["else", TokenType.ELSE],
   ["sinon", TokenType.ELSE],
@@ -60,22 +18,10 @@ const Keywords = new Map([
   ["afficher", TokenType.PRINT],
   ["si", TokenType.IF],
   ["if", TokenType.IF],
+  ["end", TokenType.END],
+  ["fin", TokenType.END],
   ["var", TokenType.VAR],
 ]);
-
-export type Position = [start: number, end: number, line: number];
-
-export type Token =
-  | {
-      type: Exclude<TokenType, TokenType.NUMBER>;
-      value: string;
-      position: Position;
-    }
-  | {
-      type: TokenType.NUMBER;
-      value: number;
-      position: Position;
-    };
 
 let source: string = "";
 let tokens: Token[] = [];
