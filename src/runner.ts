@@ -24,12 +24,11 @@ export function run(s: string) {
 
 function throwUnexpectedToken(e: UnexpectedTokenError, s: string) {
   const errorMessage = `"${e.got.type}" inattendu`;
-  const expectedMessage = `"${e.expected}" attendu ici`;
   const column = getColumn(e.got.position, source);
   throw `Erreur de syntaxe : ${errorMessage} (${positionToString(e.got.position, column)})
 
 ${getLine(e.got.position[0], s)}
-${underline(column + 1, e.got.position)} ${e.expected ? expectedMessage : errorMessage}`;
+${underline(column, e.got.position)} ${e.message}`;
 }
 
 function throwRuntimeError(e: RuntimeError, s: string) {
@@ -43,7 +42,7 @@ ${e.message.padStart(column)}
 }
 
 function underline(column: number, position: Position): string {
-  return "".padStart(column).padEnd(position[1] - position[0] + column, "^");
+  return " ".repeat(column) + "^".repeat(position[1] - position[0]);
 }
 
 function throwParseError(e: ParseError, source: string) {

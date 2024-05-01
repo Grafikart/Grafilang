@@ -19,11 +19,9 @@ export class ParseError extends Error {
 export class UnexpectedTokenError extends Error {
   constructor(
     public got: Token,
-    public expected?: string,
+    public message: string,
   ) {
-    super(
-      `Unexpected token "${got.type}"${expected ? `, expected ${expected}` : ""}`,
-    );
+    super(message);
   }
 }
 

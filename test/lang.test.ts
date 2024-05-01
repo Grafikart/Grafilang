@@ -59,4 +59,14 @@ describe('Grafilang', () => {
             AFFICHER A
         `)).toThrowError(RuntimeError)
     })
+
+    test('une variable peut être assignée dans un block', () => {
+        expect(run(`
+            VAR A = 2
+            {
+                VAR A = 3
+            }
+            AFFICHER A
+        `)).toBe("2")
+    })
 })

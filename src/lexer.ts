@@ -4,8 +4,10 @@ export enum TokenType {
   // Single-character tokens.
   LEFT_PAREN = "(",
   RIGHT_PAREN = ")",
-  LEFT_BRACE = "[",
-  RIGHT_BRACE = "]",
+  LEFT_BRACE = "{",
+  RIGHT_BRACE = "}",
+  LEFT_BRACKET = "[",
+  RIGHT_BRACKET = "]",
   COMMA = ",",
   DOT = ".",
   MINUS = "-",
@@ -116,6 +118,12 @@ function scanToken() {
       break;
     case "}":
       addToken(TokenType.RIGHT_BRACE);
+      break;
+    case "[":
+      addToken(TokenType.LEFT_BRACKET);
+      break;
+    case "]":
+      addToken(TokenType.RIGHT_BRACKET);
       break;
     case ",":
       addToken(TokenType.COMMA);

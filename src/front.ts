@@ -1,4 +1,4 @@
-import { run } from "./runner.ts";
+import {run} from "./runner.ts";
 
 const textarea = document.querySelector("textarea")!;
 const code = document.querySelector("code")!;
