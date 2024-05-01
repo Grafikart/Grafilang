@@ -46,12 +46,19 @@ function underline(column: number, position: Position): string {
   return "".padStart(column).padEnd(position[1] - position[0] + column, "^");
 }
 
-function throwParseError(e: ParseError, s: string) {
-  console.error(e, s[0]);
+function throwParseError(e: ParseError, source: string) {
+  const errorPosition = [e.start, e.end ?? e.start + 1, e.line] as [number, number, number]
+  const column = getColumn(errorPosition, source);
+  throw `Erreur de syntaxe (${positionToString([e.start, e.end ?? e.start + 1, e.line], column)})
+  
+${getLine(e.line, source)}
+${underline(column, errorPosition)}
+${spaces(column)}${e.message}
+  `
 }
 
 function getColumn(position: Position, source: string): number {
-  return position[0] - Math.max(source.lastIndexOf("\n", position[0]), 0);
+  return position[0] - Math.max(source.lastIndexOf("\n", position[0]) + 1, 0);
 }
 
 function positionToString(position: Position, column: number): string {
@@ -65,4 +72,8 @@ function getLine(index: number, source: string): string {
     lineIndex === -1 ? 0 : lineIndex,
     endLineIndex === -1 ? undefined : endLineIndex,
   );
+}
+
+function spaces (n: number): string {
+  return " ".repeat(n)
 }
