@@ -14,5 +14,8 @@
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vitest": "^1.5.3"
+  },
+  "dependencies": {
+    "monaco-editor": "^0.48.0"
   }
 }

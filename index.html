@@ -6,30 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Grafilang demo</title>
     <style>
-        body {
-            font-family: monospace;
-            margin: 0;
-            padding: 0;
-        }
-
-        textarea {
-            font-family: monospace;
-            border: solid 1px #dce6f0;
-            border-radius: 0;
-            resize: none;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        .layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            grid-template-rows: 1fr 1fr;
-            width: 100vw;
-            height: 100vh;
-        }
 
         pre {
             margin: 0;
@@ -60,7 +36,7 @@
 </head>
 <body>
 <div class="layout">
-    <textarea>
+    <textarea class="code-input">
 VAR A = 1
 TANTQUE A < 3 FAIRE
     A = A + 1
@@ -74,10 +50,11 @@ SI A > 1 ALORS
 FIN
 AFFICHER A
 </textarea>
+    <div class="editor"></div>
     <pre>
       <code></code>
     </pre>
 </div>
-<script type="module" src="/src/front.ts"></script>
+<script type="module" src="/src/ui/main.ts"></script>
 </body>
 </html>

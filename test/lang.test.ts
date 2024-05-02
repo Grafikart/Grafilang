@@ -1,8 +1,8 @@
 import { describe, test, expect } from "vitest";
-import { interpret } from "../src/interpreter";
-import { buildASTTree } from "../src/ast";
-import { parseTokens } from "../src/lexer";
-import { ParseError, RuntimeError } from "../src/errors";
+import { interpret } from "../src/lang/interpreter";
+import { buildASTTree } from "../src/lang/ast";
+import { parseTokens } from "../src/lang/lexer";
+import { ParseError, RuntimeError } from "../src/lang/errors";
 
 describe("Grafilang", () => {
   const run = (source: string) => {
