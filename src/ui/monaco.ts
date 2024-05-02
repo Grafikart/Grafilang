@@ -25,7 +25,21 @@ languages.setMonarchTokensProvider(langId, {
   tokenPostfix: "",
   ignoreCase: true,
 
-  keywords: ["tantque", "var", "fin", "si", "alors", "afficher", "faire"],
+  keywords: [
+    "tantque",
+    "var",
+    "fin",
+    "si",
+    "alors",
+    "afficher",
+    "faire",
+    "pour",
+    "entre",
+    "between",
+    "et",
+    "ou",
+    "sinon",
+  ],
 
   operators: ["+", "-", "*", "/", ">", "=", "<"],
 

@@ -42,6 +42,8 @@ export enum TokenType {
   VAR = "Var",
   END = "Fin",
   WHILE = "TantQue",
+  FOR = "POUR",
+  FROM = "DE",
 
   EOF = "EOF",
 }
@@ -129,6 +131,7 @@ export enum StatementType {
   Block = "Block",
   If = "If",
   While = "While",
+  For = "For",
 }
 
 export type Program = {
@@ -171,6 +174,14 @@ export type WhileStatement = {
   body: BlockStatement;
   position: Position;
 };
+export type ForStatement = {
+  type: StatementType.For;
+  variable: Token & { type: TokenType.IDENTIFIER };
+  start: Expression;
+  end: Expression;
+  body: Statement[];
+  position: Position;
+};
 
 export type Statement =
   | ExpressionStatement
@@ -178,4 +189,5 @@ export type Statement =
   | BlockStatement
   | IfStatement
   | WhileStatement
+  | ForStatement
   | DeclarationStatement;

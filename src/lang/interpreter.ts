@@ -6,6 +6,7 @@ import {
   BlockStatement,
   Expression,
   ExpressionType,
+  ForStatement,
   LiteralExpression,
   LogicalExpression,
   Statement,
@@ -65,6 +66,9 @@ function evalStatement(statement: Statement | null): void {
     case StatementType.While:
       evalWhile(statement);
       return;
+    case StatementType.For:
+      evalFor(statement);
+      return;
   }
 }
 
@@ -79,6 +83,33 @@ function evalWhile(statement: WhileStatement): void {
       );
     }
     evalBlock(statement.body);
+  }
+}
+
+function evalFor(statement: ForStatement): void {
+  const previousMemory = blockMemory;
+  const start = evalExpression(statement.start);
+  const end = evalExpression(statement.end);
+  ensureNumber(
+    start,
+    "La valeur de départ de la boucle doit être un nombre",
+    statement.start,
+  );
+  ensureNumber(
+    end,
+    "La valeur de fin de la boucle doit être un nombre",
+    statement.start,
+  );
+  const increment = start <= end ? 1 : -1;
+  for (
+    let i = start;
+    increment === 1 ? i <= end : i >= end;
+    i = i + increment
+  ) {
+    blockMemory = new Memory(blockMemory);
+    blockMemory.define(statement.variable, i);
+    statement.body.map(evalStatement);
+    blockMemory = previousMemory;
   }
 }
 
@@ -228,6 +259,14 @@ function ensureNumbers(
   message: string,
   expression: Expression,
 ): asserts values is number[] {
+  ensureType(values, "number", message, expression);
+}
+
+function ensureNumber(
+  values: unknown,
+  message: string,
+  expression: Expression,
+): asserts values is number {
   ensureType(values, "number", message, expression);
 }
 

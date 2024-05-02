@@ -25,10 +25,7 @@ export class Memory {
       return this.#parent.getValue(name);
     }
 
-    throw new RuntimeError(
-      `Impossible de redéclarer la variable ${variableName}`,
-      name,
-    );
+    throw new RuntimeError(`La variable ${variableName} n'existe pas`, name);
   }
 
   assign(name: Token, v: Value): Value {

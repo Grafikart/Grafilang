@@ -4,6 +4,7 @@ import {
   DeclarationStatement,
   Expression,
   ExpressionType,
+  ForStatement,
   IfStatement,
   Program,
   Statement,
@@ -52,6 +53,9 @@ function statement(): Statement {
   if (eat(TokenType.WHILE)) {
     return whileStatement();
   }
+  if (eat(TokenType.FOR)) {
+    return forStatement();
+  }
   if (eat(TokenType.LEFT_BRACE)) {
     return blockStatement(
       [TokenType.RIGHT_BRACE],
@@ -74,7 +78,8 @@ function ifStatement(): IfStatement {
     [TokenType.END, TokenType.ELSE],
     `"FIN" attendu à la fin d'une condition`,
   );
-  const wrong = eat(TokenType.ELSE) ? blockStatement([TokenType.END]) : null;
+  const wrong =
+    previous().type === TokenType.ELSE ? blockStatement([TokenType.END]) : null;
   return {
     type: StatementType.If,
     condition,
@@ -85,7 +90,6 @@ function ifStatement(): IfStatement {
 }
 
 function whileStatement(): WhileStatement {
-  debugger;
   const start = previous();
   const condition = expression();
   const end = eatOrFail(
@@ -100,6 +104,34 @@ function whileStatement(): WhileStatement {
       `"FIN" attendu à la fin d'une boucle`,
     ),
     position: [start.position[0], end.position[1], start.position[2]],
+  };
+}
+
+function forStatement(): ForStatement {
+  const forToken = previous();
+  const identifier = eatOrFail(
+    [TokenType.IDENTIFIER],
+    "Nom de variable attendu",
+  );
+  eatOrFail([TokenType.FROM], `"Entre" attendu ici`);
+  const start = termExpression();
+  eatOrFail([TokenType.AND], `Mot clef "et" attendu`);
+  const end = termExpression();
+  eatOrFail(
+    [TokenType.THEN],
+    `"FAIRE" est attendu après la condition pour une boucle`,
+  );
+  const block = blockStatement(
+    [TokenType.END],
+    `"FIN" attendu à la fin d'une boucle`,
+  );
+  return {
+    type: StatementType.For,
+    start: start,
+    end: end,
+    variable: identifier,
+    body: block.body,
+    position: [forToken.position[0], block.position[1], forToken.position[2]],
   };
 }
 

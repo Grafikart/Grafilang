@@ -1,12 +1,10 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
 import { interpret } from "../src/lang/interpreter";
-import { buildASTTree } from "../src/lang/ast";
-import { parseTokens } from "../src/lang/lexer";
 import { ParseError, RuntimeError } from "../src/lang/errors";
 
 describe("Grafilang", () => {
   const run = (source: string) => {
-    return interpret(buildASTTree(parseTokens(source)));
+    return interpret(source);
   };
 
   test.each([
@@ -121,6 +119,14 @@ describe("Grafilang", () => {
             A = A + 1
         FIN
         `),
+    ).toBe("1\n2\n3");
+  });
+
+  test(`les boucles "for" sont supportées`, () => {
+    expect(
+      run(`POUR K ENTRE 1 ET 3 FAIRE
+           AFFICHER K
+        FIN`),
     ).toBe("1\n2\n3");
   });
 });

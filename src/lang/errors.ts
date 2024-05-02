@@ -25,11 +25,8 @@ ${" ".repeat(column)}${this.message}`;
 export class ParseError extends CodeError {
   constructor(
     public message: string,
-    public line: number,
-    public start: number,
-    public end?: number,
+    public position: Position
   ) {
-    const position: Position = [start, end ?? start + 1, line];
     super(message, position);
     this.name = "Erreur de syntaxe";
   }
