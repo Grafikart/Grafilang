@@ -1,3 +1,5 @@
+import type { Callable } from "./callable.ts";
+
 export enum TokenType {
   // Single-character tokens.
   LEFT_PAREN = "(",
@@ -37,7 +39,6 @@ export enum TokenType {
   ELSE = "Sinon",
   FALSE = "Faux",
   TRUE = "Vrai",
-  PRINT = "Afficher",
   THEN = "Alors",
   VAR = "Var",
   END = "Fin",
@@ -73,6 +74,7 @@ export enum ExpressionType {
   Unary = "Unary",
   Variable = "Variable",
   Assignment = "Assignment",
+  Call = "Call",
 }
 
 export type LiteralExpression = {
@@ -111,12 +113,22 @@ export type AssignmentExpression = {
   value: Expression;
   position: Position;
 };
+
+export type CallExpression = {
+  type: ExpressionType.Call;
+  callee: Expression;
+  args: Expression[];
+  position: Position;
+  argsPosition: Position;
+};
+
 export type Expression =
   | BinaryExpression
   | UnaryExpression
   | LogicalExpression
   | LiteralExpression
   | AssignmentExpression
+  | CallExpression
   | VariableExpression;
 
 /**
@@ -191,3 +203,9 @@ export type Statement =
   | WhileStatement
   | ForStatement
   | DeclarationStatement;
+
+export type StdOut = {
+  push: (s: string) => void;
+  clear: () => void;
+};
+export type Value = LiteralExpression["value"] | Callable | void;

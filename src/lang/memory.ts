@@ -1,7 +1,5 @@
 import { RuntimeError } from "./errors.ts";
-import { LiteralExpression, Token } from "./type.ts";
-
-type Value = LiteralExpression["value"];
+import { Token, Value } from "./type.ts";
 
 /**
  * Gère les variables stockées en mémoire pendant l'exécution du programme
@@ -25,7 +23,10 @@ export class Memory {
       return this.#parent.getValue(name);
     }
 
-    throw new RuntimeError(`La variable ${variableName} n'existe pas`, name);
+    throw new RuntimeError(
+      `La variable ${variableName} n'existe pas`,
+      name.position,
+    );
   }
 
   assign(name: Token, v: Value): Value {
@@ -40,15 +41,22 @@ export class Memory {
       return this.#parent.assign(name, v);
     }
 
-    throw new RuntimeError(`La variable ${variableName} n'existe pas`, name);
+    throw new RuntimeError(
+      `La variable ${variableName} n'existe pas`,
+      name.position,
+    );
   }
 
-  define(name: Token, v: Value): Value {
+  define(name: Token | string, v: Value): Value {
+    if (typeof name == "string") {
+      this.#values.set(name, v);
+      return v;
+    }
     const variableName = name.value.toString();
     if (this.#values.has(variableName)) {
       throw new RuntimeError(
         `Impossible de redéclarer la variable ${variableName}`,
-        name,
+        name.position,
       );
     }
     this.#values.set(variableName, v);

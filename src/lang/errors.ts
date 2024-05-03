@@ -1,4 +1,4 @@
-import { Expression, Position, Token } from "./type.ts";
+import { Position, Token } from "./type.ts";
 
 export class CodeError extends Error {
   constructor(
@@ -25,7 +25,7 @@ ${" ".repeat(column)}${this.message}`;
 export class ParseError extends CodeError {
   constructor(
     public message: string,
-    public position: Position
+    public position: Position,
   ) {
     super(message, position);
     this.name = "Erreur de syntaxe";
@@ -42,9 +42,9 @@ export class UnexpectedTokenError extends CodeError {
 export class RuntimeError extends CodeError {
   constructor(
     public message: string,
-    public expression: Expression | Token,
+    public position: Position,
   ) {
-    super(message, expression.position);
+    super(message, position);
     this.name = `Erreur à l'exécution`;
   }
 }

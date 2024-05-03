@@ -4,6 +4,7 @@ import {
   AssignmentExpression,
   BinaryExpression,
   BlockStatement,
+  CallExpression,
   Expression,
   ExpressionType,
   ForStatement,
@@ -11,30 +12,29 @@ import {
   LogicalExpression,
   Statement,
   StatementType,
+  StdOut,
   TokenType,
   UnaryExpression,
+  Value,
   VariableExpression,
   WhileStatement,
 } from "./type.ts";
 import { buildASTTree } from "./ast.ts";
 import { parseTokens } from "./lexer.ts";
+import { globals } from "./stdlib.ts";
+import { Callable } from "./callable.ts";
 
-type Value = LiteralExpression["value"];
-const globalMemory = new Memory();
-let blockMemory = globalMemory;
-let stdOut = (_: unknown) => {};
+let blockMemory = new Memory(globals);
+let stdOut: StdOut;
 
-export function interpret(source: string): string {
+export function interpret(source: string, out: StdOut): void {
   const ast = buildASTTree(parseTokens(source));
-  let out: unknown[] = [];
-  stdOut = (v) => out.push(v);
+  stdOut = out;
   if (!import.meta.env.TEST) {
     console.log("AST:", ast);
   }
-  blockMemory = globalMemory;
   blockMemory.clear();
   ast.body.map(evalStatement);
-  return out.join("\n");
 }
 
 function evalStatement(statement: Statement | null): void {
@@ -42,9 +42,6 @@ function evalStatement(statement: Statement | null): void {
     return;
   }
   switch (statement.type) {
-    case StatementType.Print:
-      stdOut(evalExpression(statement.expression));
-      return;
     case StatementType.Expression:
       evalExpression(statement.expression);
       return;
@@ -79,7 +76,7 @@ function evalWhile(statement: WhileStatement): void {
     if (limiter > 10_000) {
       throw new RuntimeError(
         "Boucle infinie, la condition de cette boucle ne devient jamais fausse",
-        statement.condition,
+        statement.condition.position,
       );
     }
     evalBlock(statement.body);
@@ -134,6 +131,8 @@ function evalExpression(expr: Expression): Value {
       return evalAssignment(expr);
     case ExpressionType.Logical:
       return evalLogical(expr);
+    case ExpressionType.Call:
+      return evalCall(expr);
   }
   return null;
 }
@@ -157,7 +156,7 @@ function evalUnary(expr: UnaryExpression): Value {
       if (typeof right !== "number") {
         throw new RuntimeError(
           `Impossible d'utiliser l'opérateur "-" sur une valeur qui n'est pas un nombre`,
-          expr,
+          expr.position,
         );
       }
       return right * -1;
@@ -165,7 +164,7 @@ function evalUnary(expr: UnaryExpression): Value {
       if (typeof right !== "boolean") {
         throw new RuntimeError(
           `Impossible d'utiliser l'opérateur "!" sur une valeur qui n'est pas un booléen (vrai / faux)`,
-          expr,
+          expr.position,
         );
       }
       return !right;
@@ -216,7 +215,7 @@ function evalBinary(expr: BinaryExpression): Value {
       }
       throw new RuntimeError(
         `Impossible d'additionner ces types ensembles`,
-        expr,
+        expr.position,
       );
     case TokenType.EQUAL_EQUAL:
       return sides[0] === sides[1];
@@ -248,6 +247,20 @@ function evalLogical(expr: LogicalExpression): boolean {
     expr.left,
   );
   return right;
+}
+
+function evalCall(expr: CallExpression): Value {
+  const callee = evalExpression(expr.callee);
+  if (!(callee instanceof Callable)) {
+    throw new RuntimeError(`La valeur n'est pas une fonction`, expr.position);
+  }
+  if (callee.arity !== expr.args.length) {
+    throw new RuntimeError(
+      `La fonction attend ${callee.arity} paramètre (${expr.args.length} obtenus)`,
+      expr.argsPosition,
+    );
+  }
+  return callee.call(stdOut, ...expr.args.map(evalExpression));
 }
 
 /**
@@ -297,7 +310,6 @@ function ensureType(
     return;
   }
   if (typeof value !== type) {
-    console.log(value);
-    throw new RuntimeError(message + ` (${typeof value})`, expression);
+    throw new RuntimeError(message + ` (${typeof value})`, expression.position);
   }
 }

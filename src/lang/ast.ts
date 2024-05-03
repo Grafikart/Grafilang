@@ -42,14 +42,6 @@ function statement(): Statement {
   if (eat(TokenType.IF)) {
     return ifStatement();
   }
-  if (eat(TokenType.PRINT)) {
-    const expr = expression();
-    return {
-      type: StatementType.Print,
-      expression: expr,
-      position: expr.position,
-    };
-  }
   if (eat(TokenType.WHILE)) {
     return whileStatement();
   }
@@ -59,7 +51,7 @@ function statement(): Statement {
   if (eat(TokenType.LEFT_BRACE)) {
     return blockStatement(
       [TokenType.RIGHT_BRACE],
-      `"}" attendu à la fin d'un block`,
+      `'}' attendu à la fin d'un block`,
     );
   }
   const expr = expression();
@@ -76,7 +68,7 @@ function ifStatement(): IfStatement {
   eatOrFail([TokenType.THEN], "ALORS est attendu à la fin d'une condition");
   const right = blockStatement(
     [TokenType.END, TokenType.ELSE],
-    `"FIN" attendu à la fin d'une condition`,
+    `'FIN' attendu à la fin d'une condition`,
   );
   const wrong =
     previous().type === TokenType.ELSE ? blockStatement([TokenType.END]) : null;
@@ -94,14 +86,14 @@ function whileStatement(): WhileStatement {
   const condition = expression();
   const end = eatOrFail(
     [TokenType.THEN],
-    `"FAIRE" est attendu après la condition pour une boucle`,
+    `'FAIRE' est attendu après la condition pour une boucle`,
   );
   return {
     type: StatementType.While,
     condition: condition,
     body: blockStatement(
       [TokenType.END],
-      `"FIN" attendu à la fin d'une boucle`,
+      `'FIN' attendu à la fin d'une boucle`,
     ),
     position: [start.position[0], end.position[1], start.position[2]],
   };
@@ -113,17 +105,17 @@ function forStatement(): ForStatement {
     [TokenType.IDENTIFIER],
     "Nom de variable attendu",
   );
-  eatOrFail([TokenType.FROM], `"Entre" attendu ici`);
+  eatOrFail([TokenType.FROM], `'Entre' attendu ici`);
   const start = termExpression();
-  eatOrFail([TokenType.AND], `Mot clef "et" attendu`);
+  eatOrFail([TokenType.AND], `Mot clef 'et' attendu`);
   const end = termExpression();
   eatOrFail(
     [TokenType.THEN],
-    `"FAIRE" est attendu après la condition pour une boucle`,
+    `'FAIRE' est attendu après la condition pour une boucle`,
   );
   const block = blockStatement(
     [TokenType.END],
-    `"FIN" attendu à la fin d'une boucle`,
+    `'FIN' attendu à la fin d'une boucle`,
   );
   return {
     type: StatementType.For,
@@ -138,9 +130,9 @@ function forStatement(): ForStatement {
 function declarationStatement(): DeclarationStatement {
   const name = eatOrFail(
     [TokenType.IDENTIFIER],
-    `Un nom de variable est attendu à gauche d'un "="`,
+    `Un nom de variable est attendu à gauche d'un '='`,
   );
-  eatOrFail([TokenType.EQUAL], `"=" attendu pour déclarer une variable`);
+  eatOrFail([TokenType.EQUAL], `'=' attendu pour déclarer une variable`);
   const expr = expression();
   return {
     type: StatementType.Declaration,
@@ -152,7 +144,7 @@ function declarationStatement(): DeclarationStatement {
 
 function blockStatement(
   delimiter = [TokenType.RIGHT_BRACE] as TokenType[],
-  errorMessage = `"}" attendu pour fermer le block précédent`,
+  errorMessage = `'}' attendu pour fermer le block précédent`,
 ): BlockStatement {
   const token = peek();
   const statements: Statement[] = [];
@@ -310,7 +302,44 @@ function unaryExpression(): Expression {
       position: right.position,
     };
   }
-  return primaryExpression();
+  return callExpression();
+}
+
+function callExpression(): Expression {
+  let expr = primaryExpression();
+
+  while (true) {
+    // On a une parenthèse (donc c'est un appel à une fonction)
+    if (eat(TokenType.LEFT_PAREN)) {
+      const open = previous();
+      const callee = expr;
+      // On construit  la liste des paramètres
+      const args: Expression[] = [];
+      if (!checkType(TokenType.RIGHT_PAREN)) {
+        while (true) {
+          args.push(expression());
+          if (!eat(TokenType.COMMA)) {
+            break;
+          }
+        }
+      }
+      // On a cloture l'appel
+      const close = eatOrFail(
+        [TokenType.RIGHT_PAREN],
+        "')' attendu à la fin de la liste de paramètre",
+      );
+      expr = {
+        type: ExpressionType.Call,
+        callee: callee,
+        args: args,
+        position: callee.position,
+        argsPosition: [open.position[0], close.position[1], callee.position[2]],
+      };
+    } else {
+      break;
+    }
+  }
+  return expr;
 }
 
 function primaryExpression(): Expression {
@@ -345,7 +374,7 @@ function primaryExpression(): Expression {
     const expr = expression();
     const closeToken = eatOrFail(
       [TokenType.RIGHT_PAREN],
-      `")" attendu pour fermer la parenthèse ouvrante`,
+      `')' attendu pour fermer la parenthèse ouvrante`,
     );
     return {
       ...expr,

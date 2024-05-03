@@ -4,6 +4,7 @@ import "./main.css";
 import { interpret } from "../lang/interpreter.ts";
 import { CodeError } from "../lang/errors.ts";
 import { debounce } from "./timer.ts";
+import { StdOut } from "../lang/type.ts";
 
 const source = document.querySelector("textarea")!.value;
 const editorWrapper: HTMLDivElement = document.querySelector(".editor")!;
@@ -24,11 +25,16 @@ const editor = MonacoEditor.create(editorWrapper, {
   },
 });
 
+const stdOut: StdOut = {
+  push: (s: string) => (code.innerText += `${s}\n`),
+  clear: () => code.innerText,
+};
+
 const onChange = debounce(() => {
   const source = editor.getModel()?.getValue() ?? "";
   try {
-    code.innerText = `${interpret(source)}`;
     code.classList.remove("error");
+    interpret(source, stdOut);
   } catch (e) {
     code.classList.add("error");
     if (e instanceof CodeError) {
