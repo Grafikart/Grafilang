@@ -28,7 +28,10 @@ const Keywords = new Map([
   ["between", TokenType.FROM],
   ["entre", TokenType.FROM],
   ["var", TokenType.VAR],
+  ["fonction", TokenType.FUNCTION],
+  ["function", TokenType.FUNCTION],
   [",", TokenType.COMMA],
+  ["retourner", TokenType.RETURN],
 ]);
 
 let source: string = "";

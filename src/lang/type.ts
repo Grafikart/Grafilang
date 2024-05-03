@@ -45,6 +45,8 @@ export enum TokenType {
   WHILE = "TantQue",
   FOR = "POUR",
   FROM = "DE",
+  FUNCTION = "FONCTION",
+  RETURN = "RETURN",
 
   EOF = "EOF",
 }
@@ -62,6 +64,8 @@ export type Token =
       value: number;
       position: Position;
     };
+
+export type TokenIdentifier = Token & { type: TokenType.IDENTIFIER };
 
 /**
  * Expression types
@@ -104,7 +108,7 @@ export type UnaryExpression = {
 };
 export type VariableExpression = {
   type: ExpressionType.Variable;
-  name: Token & { type: TokenType.IDENTIFIER };
+  name: TokenIdentifier;
   position: Position;
 };
 export type AssignmentExpression = {
@@ -144,6 +148,8 @@ export enum StatementType {
   If = "If",
   While = "While",
   For = "For",
+  Function = "Function",
+  Return = "Return",
 }
 
 export type Program = {
@@ -160,12 +166,22 @@ export type ExpressionStatement = {
   expression: Expression;
   position: Position;
 };
+
+export type FunctionStatement = {
+  type: StatementType.Function;
+  name: TokenIdentifier;
+  parameters: TokenIdentifier[];
+  body: Statement[];
+  position: Position;
+};
+
 export type DeclarationStatement = {
   type: StatementType.Declaration;
   expression: Expression;
-  name: Token & { type: TokenType.IDENTIFIER };
+  name: TokenIdentifier;
   position: Position;
 };
+
 export type BlockStatement = {
   type: StatementType.Block;
   body: Statement[];
@@ -186,12 +202,19 @@ export type WhileStatement = {
   body: BlockStatement;
   position: Position;
 };
+
 export type ForStatement = {
   type: StatementType.For;
-  variable: Token & { type: TokenType.IDENTIFIER };
+  variable: TokenIdentifier;
   start: Expression;
   end: Expression;
   body: Statement[];
+  position: Position;
+};
+
+export type ReturnStatement = {
+  type: StatementType.Return;
+  expression: Expression;
   position: Position;
 };
 
@@ -202,6 +225,8 @@ export type Statement =
   | IfStatement
   | WhileStatement
   | ForStatement
+  | FunctionStatement
+  | ReturnStatement
   | DeclarationStatement;
 
 export type StdOut = {

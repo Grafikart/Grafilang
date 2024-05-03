@@ -27,6 +27,8 @@ languages.setMonarchTokensProvider(langId, {
 
   keywords: [
     "tantque",
+    "fonction",
+    "retourner",
     "var",
     "fin",
     "si",

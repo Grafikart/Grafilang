@@ -135,4 +135,29 @@ describe("Grafilang", () => {
         FIN`),
     ).toEqual(["1", "2", "3"]);
   });
+
+  test(`on peut déclarer des fonctions`, () => {
+    expect(
+      run(`
+fonction count(n)
+  si n > 1 alors
+        count(n - 1)
+  fin
+  afficher(n)
+fin
+
+count(3)`),
+    ).toEqual(["1", "2", "3"]);
+  });
+
+  test(`une fonction peut renvoyer une valeure`, () => {
+    expect(
+      run(`
+fonction double(n)
+    retourner n * 2
+fin
+
+afficher(double(3))`),
+    ).toEqual(["6"]);
+  });
 });

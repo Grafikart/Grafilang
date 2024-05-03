@@ -5,11 +5,14 @@ import {
   Expression,
   ExpressionType,
   ForStatement,
+  FunctionStatement,
   IfStatement,
   Program,
+  ReturnStatement,
   Statement,
   StatementType,
   Token,
+  TokenIdentifier,
   TokenType,
   WhileStatement,
 } from "./type.ts";
@@ -36,6 +39,12 @@ export function buildASTTree(t: Token[]): Program {
  */
 
 function statement(): Statement {
+  if (eat(TokenType.FUNCTION)) {
+    return funcDeclarationStatement();
+  }
+  if (eat(TokenType.RETURN)) {
+    return returnStatement();
+  }
   if (eat(TokenType.VAR)) {
     return declarationStatement();
   }
@@ -59,6 +68,45 @@ function statement(): Statement {
     type: StatementType.Expression,
     expression: expr,
     position: expr.position,
+  };
+}
+
+function returnStatement(): ReturnStatement {
+  const start = previous();
+  const expr = expression();
+  return {
+    type: StatementType.Return,
+    expression: expr,
+    position: [start.position[0], expr.position[1], start.position[2]],
+  };
+}
+
+function funcDeclarationStatement(): FunctionStatement {
+  const start = previous();
+  const name = eatOrFail([TokenType.IDENTIFIER], "Nom de la fonction attendu");
+  eatOrFail(
+    [TokenType.LEFT_PAREN],
+    "'(' attendu pour définir les paramètre de la fonction",
+  );
+  const params: TokenIdentifier[] = [];
+  while (!checkType(TokenType.RIGHT_PAREN)) {
+    params.push(eatOrFail([TokenType.IDENTIFIER], "Nom de paramètre attendu"));
+    eat(TokenType.COMMA);
+  }
+  eatOrFail(
+    [TokenType.RIGHT_PAREN],
+    "')' attendu à la fin de la liste des paramètres",
+  );
+  const block = blockStatement(
+    [TokenType.END],
+    "'FIN' attendu à la fin de la fonction",
+  );
+  return {
+    type: StatementType.Function,
+    body: block.body,
+    name: name,
+    parameters: params,
+    position: [start.position[0], block.position[1], start.position[2]],
   };
 }
 

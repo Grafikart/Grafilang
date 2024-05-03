@@ -1,4 +1,4 @@
-import { RuntimeError } from "./errors.ts";
+import { ReturnValue, RuntimeError } from "./errors.ts";
 import { Memory } from "./memory.ts";
 import {
   AssignmentExpression,
@@ -8,8 +8,10 @@ import {
   Expression,
   ExpressionType,
   ForStatement,
+  FunctionStatement,
   LiteralExpression,
   LogicalExpression,
+  ReturnStatement,
   Statement,
   StatementType,
   StdOut,
@@ -66,7 +68,40 @@ function evalStatement(statement: Statement | null): void {
     case StatementType.For:
       evalFor(statement);
       return;
+    case StatementType.Function:
+      evalFuncDeclar(statement);
+      return;
+    case StatementType.Return:
+      evalReturn(statement);
   }
+}
+
+function evalReturn(statement: ReturnStatement): void {
+  throw new ReturnValue(evalExpression(statement.expression));
+}
+
+function evalFuncDeclar(statement: FunctionStatement): void {
+  const name = statement.name.value;
+  blockMemory.define(
+    name,
+    new Callable(statement.parameters.length, (_, ...args) => {
+      const previousMemory = blockMemory;
+      blockMemory = new Memory(blockMemory);
+      statement.parameters.map((param, k) =>
+        blockMemory.define(param.value, args[k]),
+      );
+      try {
+        statement.body.map(evalStatement);
+      } catch (e) {
+        if (e instanceof ReturnValue) {
+          blockMemory = previousMemory;
+          return e.value;
+        }
+        throw e;
+      }
+      blockMemory = previousMemory;
+    }),
+  );
 }
 
 function evalWhile(statement: WhileStatement): void {

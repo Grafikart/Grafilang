@@ -1,4 +1,4 @@
-import { Position, Token } from "./type.ts";
+import { Position, Token, Value } from "./type.ts";
 
 export class CodeError extends Error {
   constructor(
@@ -56,4 +56,8 @@ function getLine(index: number, source: string): string {
     lineIndex === -1 ? 0 : lineIndex,
     endLineIndex === -1 ? undefined : endLineIndex,
   );
+}
+
+export class ReturnValue {
+  constructor(public value: Value) {}
 }
