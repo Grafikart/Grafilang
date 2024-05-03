@@ -9,7 +9,6 @@ export const globals = new Memory();
 globals.define(
   "afficher",
   new Callable(1, (out, value) => {
-    console.log({ out, value });
     out.push(`${value}`);
   }),
 );

@@ -4,7 +4,13 @@ import { ParseError, RuntimeError } from "../src/lang/errors";
 
 describe("Grafilang", () => {
   const run = (source: string) => {
-    return interpret(source);
+    let out: string[] = [];
+    const stdOut = {
+      push: (s: string) => out.push(s),
+      clear: () => (out = []),
+    };
+    interpret(source, stdOut);
+    return out;
   };
 
   test.each([
@@ -13,13 +19,13 @@ describe("Grafilang", () => {
     [`'Bonjour ' + 'John'`, "Bonjour John"],
     ["1 + 2 * 3", "7"],
   ])("comprend les expressions simples %s -> %s", (code, expected) => {
-    expect(run("AFFICHER " + code)).toBe(expected);
+    expect(run("afficher(" + code + ")")).toEqual([expected]);
   });
 
   test("détecte la non fermeture d'une chaine", () => {
     expect(() =>
       run(`
-            AFFICHER "Bonjour " + " John
+            afficher("Bonjour " + " John)
         `),
     ).toThrowError(ParseError);
   });
@@ -28,15 +34,15 @@ describe("Grafilang", () => {
     expect(
       run(`
             VAR A = 3 + 2
-            AFFICHER A
+            afficher(A)
         `),
-    ).toBe("5");
+    ).toEqual(["5"]);
 
     expect(() =>
       run(`
             VAR A = 3 + 2
             VAR A = 2
-            AFFICHER A
+            afficher(A)
         `),
     ).toThrowError(RuntimeError);
   });
@@ -46,7 +52,7 @@ describe("Grafilang", () => {
       run(`
             VAR A = 3 + 2
             VAR A = 2
-            AFFICHER A
+            afficher(A)
         `),
     ).toThrowError(RuntimeError);
   });
@@ -56,16 +62,16 @@ describe("Grafilang", () => {
       run(`
             VAR A = 3 + 2
             A = 1
-            AFFICHER A
+            afficher(A)
         `),
-    ).toBe("1");
+    ).toEqual(["1"]);
   });
 
   test("une variable doit exister pour être assigné", () => {
     expect(() =>
       run(`
             A = 2
-            AFFICHER A
+            afficher(A)
         `),
     ).toThrowError(RuntimeError);
   });
@@ -77,9 +83,9 @@ describe("Grafilang", () => {
             {
                 VAR A = 3
             }
-            AFFICHER A
+            afficher(A)
         `),
-    ).toBe("2");
+    ).toEqual(["2"]);
   });
 
   test.each([
@@ -90,12 +96,12 @@ describe("Grafilang", () => {
       run(`
             VAR A = ${v}
             SI A > 2 ALORS
-                AFFICHER "plus de 2"
+                afficher("plus de 2")
             SINON
-                AFFICHER "moins de 2"
+                afficher("moins de 2")
             FIN
         `),
-    ).toBe(expected);
+    ).toEqual([expected]);
   });
 
   test.each([
@@ -107,7 +113,7 @@ describe("Grafilang", () => {
     ["TRUE OR FALSE AND FALSE", "true"],
     ["(TRUE OR FALSE) AND FALSE", "false"],
   ])("comprend les opérateurs logiques %s -> %s", (code, expected) => {
-    expect(run("AFFICHER " + code)).toBe(expected);
+    expect(run(`afficher(${code})`)).toEqual([expected]);
   });
 
   test(`les boucles "while" sont supportées`, () => {
@@ -115,18 +121,18 @@ describe("Grafilang", () => {
       run(`
         VAR A = 1
         TANTQUE A <= 3 FAIRE
-            AFFICHER A
+            afficher(A)
             A = A + 1
         FIN
         `),
-    ).toBe("1\n2\n3");
+    ).toEqual(["1", "2", "3"]);
   });
 
   test(`les boucles "for" sont supportées`, () => {
     expect(
       run(`POUR K ENTRE 1 ET 3 FAIRE
-           AFFICHER K
+           afficher(K)
         FIN`),
-    ).toBe("1\n2\n3");
+    ).toEqual(["1", "2", "3"]);
   });
 });
