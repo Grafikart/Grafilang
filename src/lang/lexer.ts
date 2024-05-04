@@ -1,7 +1,7 @@
 import { ParseError } from "./errors.ts";
 import { Token, TokenType } from "./type.ts";
 
-const Keywords = new Map([
+export const Keywords = new Map([
   ["and", TokenType.AND],
   ["et", TokenType.AND],
   ["or", TokenType.OR],

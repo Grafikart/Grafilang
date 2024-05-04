@@ -1,13 +1,22 @@
-import { languages } from "monaco-editor/esm/vs/editor/editor.api";
+import { editor, languages, Position } from "monaco-editor";
+import { Keywords } from "../lang/lexer.ts";
+import ITextModel = editor.ITextModel;
 
-const langId = "grafilang";
+export const langId = "grafilang";
 languages.register({ id: langId });
+const keywords = [
+  ...Array.from(Keywords.keys()),
+  ...Array.from(Keywords.keys()).map((v) => v.toUpperCase()),
+];
 languages.setLanguageConfiguration(langId, {
   brackets: [
-    ["{", "}"],
     ["[", "]"],
     ["(", ")"],
   ],
+
+  comments: {
+    lineComment: "//",
+  },
 
   autoClosingPairs: [
     { open: "(", close: ")" },
@@ -21,39 +30,11 @@ languages.setLanguageConfiguration(langId, {
   ],
 });
 languages.setMonarchTokensProvider(langId, {
-  defaultToken: "",
-  tokenPostfix: "",
-  ignoreCase: true,
-
-  keywords: [
-    "tantque",
-    "fonction",
-    "retourner",
-    "var",
-    "fin",
-    "si",
-    "alors",
-    "afficher",
-    "faire",
-    "pour",
-    "entre",
-    "between",
-    "et",
-    "ou",
-    "sinon",
-  ],
-
-  operators: ["+", "-", "*", "/", ">", "=", "<"],
-
-  // we include these common regular expressions
-  symbols: /[=><!~?:&|+\-*\/\^%]+/,
-  escapes:
-    /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-
-  // The main tokenizer for our languages
+  keywords,
   tokenizer: {
     root: [
-      // identifiers and keywords
+      [/\/\/.*/, "comment"],
+      [/[+\-/*!<>=%]/, "delimiter"],
       [
         /[a-zA-Z_]\w*/,
         {
@@ -63,62 +44,48 @@ languages.setMonarchTokensProvider(langId, {
           },
         },
       ],
-
-      // whitespace
-      { include: "@whitespace" },
-
-      // delimiters and operators
-      [/[{}()\[\]]/, "@brackets"],
-      [/[<>](?!@symbols)/, "@brackets"],
-      [
-        /@symbols/,
-        {
-          cases: {
-            "@operators": "delimiter",
-            "@default": "",
-          },
-        },
-      ],
-
-      // numbers
       [/\d/, "number"],
-
-      // strings
-      [/"([^"\\]|\\.)*$/, "string.invalid"], // non-teminated string
-      [/"/, "string", "@string"],
-      [/`/, "string", "@rawstring"],
-    ],
-
-    whitespace: [
       [/[ \t\r\n]+/, ""],
-      [/\/\*\*(?!\/)/, "comment.doc", "@doccomment"],
-      [/\/\*/, "comment", "@comment"],
-      [/\/\/.*$/, "comment"],
+      [/[{}()\[\]]/, "bracket"],
+      [/"[^"]*"/, "string"],
+      [/'[^']*'/, "string"],
     ],
-
-    comment: [
-      [/[^\/*]+/, "comment"],
-      [/\*\//, "comment", "@pop"],
-      [/[\/*]/, "comment"],
-    ],
-    //Identical copy of comment above, except for the addition of .doc
-    doccomment: [
-      [/[^\/*]+/, "comment.doc"],
-      [/\/\*/, "comment.doc.invalid"],
-      [/\*\//, "comment.doc", "@pop"],
-      [/[\/*]/, "comment.doc"],
-    ],
-
-    string: [
-      [/[^\\"]+/, "string"],
-      [/@escapes/, "string.escape"],
-      [/\\./, "string.escape.invalid"],
-      [/"/, "string", "@pop"],
-    ],
-
-    rawstring: [
-      [/[^\`]/, "string"],
-      [/`/, "string", "@pop"],
-    ],
+  },
+});
+languages.registerCompletionItemProvider(langId, {
+  provideCompletionItems(
+    model: ITextModel,
+    position: Position,
+  ): languages.ProviderResult<languages.CompletionList> {
+    const word = model.getWordUntilPosition(position);
+    const range = {
+      startLineNumber: position.lineNumber,
+      endLineNumber: position.lineNumber,
+      startColumn: word.startColumn,
+      endColumn: word.endColumn,
+    };
+    return {
+      suggestions: [
+        [
+          "FONCTION",
+          `FONCTION \${1:nom}($2)
+  $3
+FIN`,
+        ],
+        ["AFFICHER", `AFFICHER $1`],
+        [
+          "SI",
+          `SI \${1:condition} ALORS
+  $2
+FIN`,
+        ],
+      ].map(([label, insertText]) => ({
+        label,
+        insertText,
+        kind: languages.CompletionItemKind.Keyword,
+        insertTextRules: languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        range: range,
+      })),
+    };
   },
 });
