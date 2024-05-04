@@ -7,8 +7,13 @@ import { Callable } from "./callable.ts";
 export const globals = new Memory();
 
 globals.define(
-  "afficher",
-  new Callable(1, (out, value) => {
-    out.push(`${value}`);
+  "arrondir",
+  new Callable(1, (value) => {
+    if (typeof value !== "number") {
+      throw new Error(
+        "Impossible d'arrondir une valeur qui n'est pas un nombre",
+      );
+    }
+    Math.round(value);
   }),
 );

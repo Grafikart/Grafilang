@@ -37,11 +37,14 @@
 <body>
 <div class="layout">
     <textarea class="code-input">
-fonction double(n)
-    retourner n * 2
+fonction fib(n)
+  si n < 2 alors
+    retourner n
+  fin
+  retourner fib(n - 1) + fib(n - 2)
 fin
 
-afficher(double(3))
+afficher fib(20)
 </textarea>
     <div class="editor"></div>
     <pre>

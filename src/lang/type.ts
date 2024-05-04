@@ -47,6 +47,7 @@ export enum TokenType {
   FROM = "DE",
   FUNCTION = "FONCTION",
   RETURN = "RETURN",
+  PRINT = "AFFICHER",
 
   EOF = "EOF",
 }

@@ -32,6 +32,7 @@ const Keywords = new Map([
   ["function", TokenType.FUNCTION],
   [",", TokenType.COMMA],
   ["retourner", TokenType.RETURN],
+  ["afficher", TokenType.PRINT],
 ]);
 
 let source: string = "";

@@ -7,6 +7,7 @@ import {
   ForStatement,
   FunctionStatement,
   IfStatement,
+  PrintStatement,
   Program,
   ReturnStatement,
   Statement,
@@ -57,6 +58,9 @@ function statement(): Statement {
   if (eat(TokenType.FOR)) {
     return forStatement();
   }
+  if (eat(TokenType.PRINT)) {
+    return printStatement();
+  }
   if (eat(TokenType.LEFT_BRACE)) {
     return blockStatement(
       [TokenType.RIGHT_BRACE],
@@ -68,6 +72,16 @@ function statement(): Statement {
     type: StatementType.Expression,
     expression: expr,
     position: expr.position,
+  };
+}
+
+function printStatement(): PrintStatement {
+  const start = previous();
+  const expr = expression();
+  return {
+    type: StatementType.Print,
+    expression: expr,
+    position: [start.position[0], expr.position[1], start.position[2]],
   };
 }
 

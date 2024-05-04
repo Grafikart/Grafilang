@@ -53,6 +53,9 @@ function evalStatement(statement: Statement | null): void {
     case StatementType.Block:
       evalBlock(statement);
       return;
+    case StatementType.Print:
+      stdOut.push(`${evalExpression(statement.expression)}`);
+      return;
     case StatementType.If:
       const conditionValue = evalExpression(statement.condition);
       ensureBoolean(
@@ -84,7 +87,7 @@ function evalFuncDeclar(statement: FunctionStatement): void {
   const name = statement.name.value;
   blockMemory.define(
     name,
-    new Callable(statement.parameters.length, (_, ...args) => {
+    new Callable(statement.parameters.length, (...args) => {
       const previousMemory = blockMemory;
       blockMemory = new Memory(blockMemory);
       statement.parameters.map((param, k) =>
@@ -295,7 +298,7 @@ function evalCall(expr: CallExpression): Value {
       expr.argsPosition,
     );
   }
-  return callee.call(stdOut, ...expr.args.map(evalExpression));
+  return callee.call(...expr.args.map(evalExpression));
 }
 
 /**
