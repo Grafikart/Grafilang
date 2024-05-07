@@ -80,6 +80,8 @@ export enum ExpressionType {
   Variable = "Variable",
   Assignment = "Assignment",
   Call = "Call",
+  Array = "Array",
+  ArrayAccess = "ArrayAccess",
 }
 
 export type LiteralExpression = {
@@ -127,6 +129,19 @@ export type CallExpression = {
   argsPosition: Position;
 };
 
+export type ArrayExpression = {
+  type: ExpressionType.Array;
+  elements: Expression[];
+  position: Position;
+};
+
+export type ArrayAccessExpression = {
+  type: ExpressionType.ArrayAccess;
+  source: Expression;
+  index: Expression;
+  position: Position;
+};
+
 export type Expression =
   | BinaryExpression
   | UnaryExpression
@@ -134,6 +149,8 @@ export type Expression =
   | LiteralExpression
   | AssignmentExpression
   | CallExpression
+  | ArrayExpression
+  | ArrayAccessExpression
   | VariableExpression;
 
 /**
@@ -234,4 +251,4 @@ export type StdOut = {
   push: (s: string) => void;
   clear: () => void;
 };
-export type Value = LiteralExpression["value"] | Callable | void;
+export type Value = LiteralExpression["value"] | Callable | Value[] | void;

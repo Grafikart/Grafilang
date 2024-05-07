@@ -150,7 +150,7 @@ count(3)`),
     ).toEqual(["1", "2", "3"]);
   });
 
-  test(`une fonction peut renvoyer une valeure`, () => {
+  test(`une fonction peut renvoyer une valeur`, () => {
     expect(
       run(`
 fonction double(n)
@@ -159,5 +159,26 @@ fin
 
 afficher(double(3))`),
     ).toEqual(["6"]);
+  });
+
+  test(`le langage gère les tableaux`, () => {
+    expect(
+      run(`
+VAR notes = [10, 20, 5, 13]
+VAR somme = 0
+POUR K ENTRE 0 ET taille(notes) - 1 FAIRE
+   somme = notes[K] + somme
+FIN
+
+AFFICHER somme / taille(notes)`),
+    ).toEqual(["12"]);
+  });
+
+  test(`le langage gère les tableaux multi-niveaux`, () => {
+    expect(
+      run(`
+VAR notes = [10, 20, [5, 12], 13]
+AFFICHER notes[2][1]`),
+    ).toEqual(["12"]);
   });
 });

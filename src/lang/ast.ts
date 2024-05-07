@@ -368,40 +368,83 @@ function unaryExpression(): Expression {
 }
 
 function callExpression(): Expression {
-  let expr = primaryExpression();
-
-  while (true) {
+  let expr = arrayAccessExpression();
+  while (eat(TokenType.LEFT_PAREN)) {
     // On a une parenthèse (donc c'est un appel à une fonction)
-    if (eat(TokenType.LEFT_PAREN)) {
-      const open = previous();
-      const callee = expr;
-      // On construit  la liste des paramètres
-      const args: Expression[] = [];
-      if (!checkType(TokenType.RIGHT_PAREN)) {
-        while (true) {
-          args.push(expression());
-          if (!eat(TokenType.COMMA)) {
-            break;
-          }
+    const open = previous();
+    const callee = expr;
+    // On construit  la liste des paramètres
+    const args: Expression[] = [];
+    if (!checkType(TokenType.RIGHT_PAREN)) {
+      while (true) {
+        args.push(expression());
+        if (!eat(TokenType.COMMA)) {
+          break;
         }
       }
-      // On a cloture l'appel
-      const close = eatOrFail(
-        [TokenType.RIGHT_PAREN],
-        "')' attendu à la fin de la liste de paramètre",
-      );
-      expr = {
-        type: ExpressionType.Call,
-        callee: callee,
-        args: args,
-        position: callee.position,
-        argsPosition: [open.position[0], close.position[1], callee.position[2]],
-      };
-    } else {
-      break;
     }
+    // On a cloture l'appel
+    const close = eatOrFail(
+      [TokenType.RIGHT_PAREN],
+      "')' attendu à la fin de la liste de paramètre",
+    );
+    expr = {
+      type: ExpressionType.Call,
+      callee: callee,
+      args: args,
+      position: callee.position,
+      argsPosition: [open.position[0], close.position[1], callee.position[2]],
+    };
   }
   return expr;
+}
+
+function arrayAccessExpression(): Expression {
+  let expr = arrayExpression();
+  while (eat(TokenType.LEFT_BRACKET)) {
+    const index = expression();
+    eatOrFail(
+      [TokenType.RIGHT_BRACKET],
+      `"]" attendu après l'index d'un tableau`,
+    );
+    const closeBracket = previous();
+    expr = {
+      type: ExpressionType.ArrayAccess,
+      source: expr,
+      index: index,
+      position: [expr.position[0], closeBracket.position[1], expr.position[2]],
+    };
+  }
+  return expr;
+}
+
+function arrayExpression(): Expression {
+  if (eat(TokenType.LEFT_BRACKET)) {
+    const openBracket = previous();
+    const elements: Expression[] = [];
+    while (!eat(TokenType.RIGHT_BRACKET)) {
+      elements.push(expression());
+      if (eat(TokenType.RIGHT_BRACKET)) {
+        break;
+      }
+      eatOrFail(
+        [TokenType.COMMA],
+        '"," attendu entre les éléments d\'un tableau',
+      );
+    }
+    const closeBracket = previous();
+    return {
+      type: ExpressionType.Array,
+      elements: elements,
+      position: [
+        openBracket.position[0],
+        closeBracket.position[1],
+        openBracket.position[2],
+      ],
+    };
+  } else {
+    return primaryExpression();
+  }
 }
 
 function primaryExpression(): Expression {
@@ -431,6 +474,8 @@ function primaryExpression(): Expression {
       name: previous() as Token & { type: "Identifier" },
       position: token.position,
     };
+  }
+  if (eat(TokenType.LEFT_BRACKET)) {
   }
   if (eat(TokenType.LEFT_PAREN)) {
     const expr = expression();

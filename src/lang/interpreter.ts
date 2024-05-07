@@ -1,6 +1,8 @@
 import { ReturnValue, RuntimeError } from "./errors.ts";
 import { Memory } from "./memory.ts";
 import {
+  ArrayAccessExpression,
+  ArrayExpression,
   AssignmentExpression,
   BinaryExpression,
   BlockStatement,
@@ -171,6 +173,10 @@ function evalExpression(expr: Expression): Value {
       return evalLogical(expr);
     case ExpressionType.Call:
       return evalCall(expr);
+    case ExpressionType.Array:
+      return evalArray(expr);
+    case ExpressionType.ArrayAccess:
+      return evalArrayAcccess(expr);
   }
   return null;
 }
@@ -299,6 +305,40 @@ function evalCall(expr: CallExpression): Value {
     );
   }
   return callee.call(...expr.args.map(evalExpression));
+}
+
+function evalArray(expr: ArrayExpression): Value {
+  return expr.elements.map(evalExpression);
+}
+
+function evalArrayAcccess(expr: ArrayAccessExpression): Value {
+  const source = evalExpression(expr.source);
+  if (!Array.isArray(source)) {
+    throw new RuntimeError(
+      `Impossible d'utiliser cet élément comme un tableau`,
+      expr.source.position,
+    );
+  }
+  const index = evalExpression(expr.index);
+  if (typeof index !== "number") {
+    throw new RuntimeError(
+      `L'index d'un tableau doit être un nombre`,
+      expr.index.position,
+    );
+  }
+  if (index >= source.length) {
+    throw new RuntimeError(
+      `L'index est supérieur à la taille du tableau (index: ${index}, taille: ${source.length})`,
+      expr.index.position,
+    );
+  }
+  if (index < 0) {
+    throw new RuntimeError(
+      `L'index d'un tableau ne peut pas être négatif (valeur obtenue: ${index})`,
+      expr.index.position,
+    );
+  }
+  return source[index];
 }
 
 /**

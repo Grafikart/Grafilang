@@ -38,6 +38,7 @@ const onChange = debounce(() => {
     code.classList.remove("error");
     stdOut.clear();
     interpret(source, stdOut);
+    MonacoEditor.removeAllMarkers("lang");
   } catch (e) {
     code.classList.add("error");
     if (e instanceof CodeError) {
