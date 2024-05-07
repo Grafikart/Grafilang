@@ -106,6 +106,7 @@ editor.defineTheme("tokyonight", {
     { token: "number", foreground: colors.number },
     { token: "delimiter", foreground: colors.delimiter },
     { token: "bracket", foreground: colors.bracket },
+    { token: "comment", foreground: colors.comment },
   ],
   colors: {
     ["editor.background"]: colors.background,

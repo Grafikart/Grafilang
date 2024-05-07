@@ -8,6 +8,12 @@ Langage de programmation personnalisé qui servira de support dans le cadre de l
 - Mots clef en français (pour les non bilingues)
 - Interprétable côté navigateur
 
+## TODO 
+
+- Bouton "exécuter" (CTRL + Entrée)
+- Tests pour valider un exercice
+- Bouton déboguer
+
 ## Exercices
 
 Liste d'exercices que l'on doit pouvoir résoudre avec le langage 

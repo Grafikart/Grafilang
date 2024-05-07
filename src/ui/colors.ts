@@ -1,5 +1,6 @@
 export const colors = {
-  background: "#1A1B26",
+  backgroundDark: "#1A1B26",
+  background: "#242538",
   text: "#C0CAF5",
   variable: "#C0CAF5",
   keyword: "#7AA2F7",

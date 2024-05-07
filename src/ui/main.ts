@@ -17,6 +17,8 @@ const editor = MonacoEditor.create(editorWrapper, {
   minimap: { enabled: false },
   scrollBeyondLastLine: false,
   fontSize: 16,
+  automaticLayout: true,
+  padding: { top: 14 },
   scrollbar: {
     verticalScrollbarSize: 5,
     verticalSliderSize: 3,

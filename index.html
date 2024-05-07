@@ -5,52 +5,55 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Grafilang demo</title>
-    <style>
-
-        pre {
-            margin: 0;
-            display: flex;
-            overflow: auto;
-            background-color: #f3f6fa;
-            border: solid 1px #dce6f0;
-        }
-
-        code {
-            width: 100%;
-            height: 100%;
-            padding: .5rem;
-        }
-
-        .error {
-            background-color: #fef2f2;
-            color: #991b1b;
-            border-color: #991b1b;
-        }
-
-        @media (min-width: 700px) {
-            .layout {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    </style>
 </head>
 <body>
 <div class="layout">
-    <textarea class="code-input">
-fonction fib(n)
-  si n < 2 alors
-    retourner n
-  fin
-  retourner fib(n - 1) + fib(n - 2)
-fin
-// Commentaire
-afficher "Résultat : "
-afficher fib(1)
-</textarea>
-    <div class="editor"></div>
+    <div class="problem">
+        <div class="explanations">
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. A ab alias animi beatae deserunt eum, fugiat impedit inventore ipsam, laudantium libero obcaecati officia quisquam rerum soluta suscipit voluptatem! Deleniti, illo?
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. A ab alias animi beatae deserunt eum, fugiat impedit inventore ipsam, laudantium libero obcaecati officia quisquam rerum soluta suscipit voluptatem! Deleniti, illo?
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. A ab alias animi beatae deserunt eum, fugiat impedit inventore ipsam, laudantium libero obcaecati officia quisquam rerum soluta suscipit voluptatem! Deleniti, illo?
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. A ab alias animi beatae deserunt eum, fugiat impedit inventore ipsam, laudantium libero obcaecati officia quisquam rerum soluta suscipit voluptatem! Deleniti, illo?
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. A ab alias animi beatae deserunt eum, fugiat impedit inventore ipsam, laudantium libero obcaecati officia quisquam rerum soluta suscipit voluptatem! Deleniti, illo?
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. A ab alias animi beatae deserunt eum, fugiat impedit inventore ipsam, laudantium libero obcaecati officia quisquam rerum soluta suscipit voluptatem! Deleniti, illo?
+            </p>
+        </div>
+        <div class="tests">
+            Ceci est un test
+        </div>
+    </div>
+    <div class="workspace">
+        <div class="editor"></div>
+        <div class="output">
     <pre>
       <code></code>
     </pre>
+        </div>
+    </div>
+
+
+    <textarea class="code-input">
+FONCTION fib(n)
+  SI n < 2 ALORS
+    RETOURNER n
+  FIN
+  RETOURNER fib(n - 1) + fib(n - 2)
+FIN
+// Commentaire
+AFFICHER "Résultat : "
+AFFICHER fib(1)
+</textarea>
 </div>
 <script type="module" src="/src/ui/main.ts"></script>
 </body>
