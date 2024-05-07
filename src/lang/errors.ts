@@ -9,16 +9,31 @@ export class CodeError extends Error {
   }
 
   withSource(source: string): string {
-    const column = Math.max(
-      this.position[0] -
-        Math.max(source.lastIndexOf("\n", this.position[0]) + 1, 0),
-      0,
-    );
+    const column = this.#getColumn(source);
     return `${this.name}: ligne ${this.position[2]}, colonne ${column}
     
 ${getLine(this.position[0], source)}
 ${" ".repeat(column)}${"^".repeat(this.position[1] - this.position[0])}
 ${" ".repeat(column)}${this.message}`;
+  }
+
+  getMarker(source: string) {
+    const column = this.#getColumn(source);
+    return {
+      message: this.message,
+      startLineNumber: this.position[2],
+      startColumn: column + 1,
+      endLineNumber: this.position[2],
+      endColumn: column + this.position[1] - this.position[0] + 1,
+    };
+  }
+
+  #getColumn(source: string): number {
+    return Math.max(
+      this.position[0] -
+        Math.max(source.lastIndexOf("\n", this.position[0]) + 1, 0),
+      0,
+    );
   }
 }
 

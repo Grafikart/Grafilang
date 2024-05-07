@@ -24,7 +24,7 @@ export class Memory {
     }
 
     throw new RuntimeError(
-      `La variable ${variableName} n'existe pas`,
+      `La variable "${variableName}" n'existe pas`,
       name.position,
     );
   }
@@ -42,7 +42,7 @@ export class Memory {
     }
 
     throw new RuntimeError(
-      `La variable ${variableName} n'existe pas`,
+      `La variable "${variableName}" n'existe pas`,
       name.position,
     );
   }

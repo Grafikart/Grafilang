@@ -1,5 +1,5 @@
 import "./monaco.ts";
-import { editor as MonacoEditor } from "monaco-editor";
+import { editor as MonacoEditor, MarkerSeverity } from "monaco-editor";
 import "./main.css";
 import { interpret } from "../lang/interpreter.ts";
 import { CodeError } from "../lang/errors.ts";
@@ -15,9 +15,8 @@ const editor = MonacoEditor.create(editorWrapper, {
   value: source,
   language: langId,
   minimap: { enabled: false },
-  theme: "vs-dark",
   scrollBeyondLastLine: false,
-  fontSize: 14,
+  fontSize: 16,
   scrollbar: {
     verticalScrollbarSize: 5,
     verticalSliderSize: 3,
@@ -43,6 +42,12 @@ const onChange = debounce(() => {
     code.classList.add("error");
     if (e instanceof CodeError) {
       code.textContent = e.withSource(source);
+      MonacoEditor.setModelMarkers(editor.getModel()!, "lang", [
+        {
+          severity: MarkerSeverity.Error,
+          ...e.getMarker(source),
+        },
+      ]);
     } else {
       code.textContent = `${e}`;
     }

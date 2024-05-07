@@ -1,5 +1,6 @@
-import { editor, languages, Position } from "monaco-editor";
+import { editor, languages, type Position } from "monaco-editor";
 import { Keywords } from "../lang/lexer.ts";
+import { colors } from "./colors.ts";
 import ITextModel = editor.ITextModel;
 
 export const langId = "grafilang";
@@ -79,6 +80,12 @@ FIN`,
   $2
 FIN`,
         ],
+        [
+          "POUR",
+          `POUR K ENTRE $1 ET $2 FAIRE
+   $3
+FIN`,
+        ],
       ].map(([label, insertText]) => ({
         label,
         insertText,
@@ -89,3 +96,20 @@ FIN`,
     };
   },
 });
+editor.defineTheme("tokyonight", {
+  base: "vs-dark",
+  inherit: true,
+  rules: [
+    { token: "", foreground: colors.variable },
+    { token: "keyword", foreground: colors.keyword, fontStyle: "bold" },
+    { token: "string", foreground: colors.string },
+    { token: "number", foreground: colors.number },
+    { token: "delimiter", foreground: colors.delimiter },
+    { token: "bracket", foreground: colors.bracket },
+  ],
+  colors: {
+    ["editor.background"]: colors.background,
+    ["editor.foreground"]: colors.text,
+  },
+});
+editor.setTheme("tokyonight");
