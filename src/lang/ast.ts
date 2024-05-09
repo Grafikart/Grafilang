@@ -171,10 +171,6 @@ function forStatement(): ForStatement {
   const start = termExpression();
   eatOrFail([TokenType.AND], `Mot clef 'et' attendu`);
   const end = termExpression();
-  eatOrFail(
-    [TokenType.THEN],
-    `'FAIRE' est attendu après la condition pour une boucle`,
-  );
   const block = blockStatement(
     [TokenType.END],
     `'FIN' attendu à la fin d'une boucle`,

@@ -7,16 +7,26 @@
     "dev": "vite",
     "check": "tsc",
     "build": "tsc && vite build",
+    "build:types": "./src/tools/build-types.ts && prettier src/type.schema.ts --write",
     "test": "vitest",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "json-schema-to-typescript": "^14.0.4",
     "prettier": "^3.2.5",
     "typescript": "^5.2.2",
     "vite": "^5.2.0",
     "vitest": "^1.5.3"
   },
   "dependencies": {
-    "monaco-editor": "^0.48.0"
+    "@maverick-js/signals": "^5.11.5",
+    "@tanstack/react-router": "^1.31.25",
+    "clsx": "^2.1.1",
+    "monaco-editor": "^0.48.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }

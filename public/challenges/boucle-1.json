@@ -1,0 +1,15 @@
+{
+  "$schema": "../../challenge.schema.json",
+  "title": "Boucle",
+  "description": "## Objectif\n\nAfficher les données \n\n## Test\n\nEncore un test",
+  "code": "POUR N ENTRE 0 ET 10\n  AFFICHER N\nFIN\nAFFICHER \"Hello\"",
+  "tests": [
+    {
+      "title": "Liste les éléments",
+      "in": {
+        "N": 10
+      },
+      "out": [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+    }
+  ]
+}

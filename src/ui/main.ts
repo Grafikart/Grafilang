@@ -1,6 +1,6 @@
 import "./monaco.ts";
 import { editor as MonacoEditor, MarkerSeverity } from "monaco-editor";
-import "./main.css";
+import "../main.css";
 import { interpret } from "../lang/interpreter.ts";
 import { CodeError } from "../lang/errors.ts";
 import { debounce } from "./timer.ts";

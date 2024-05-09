@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://grafikart.fr/schema/exercice",
+  "title": "Schéma pour les exercices d'algo",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Titre de l'exercice"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description de l'exercice (en markdown)"
+    },
+    "code": {
+      "type": "string",
+      "description": "Code de base fourni pour l'exercice"
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Test à valider pour valider l'exercice",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Titre du test"
+          },
+          "in": {
+            "type": "object",
+            "description": "Variable donnée à l'algorithme en entrée",
+            "patternProperties": {
+              "^[A-Z]+$": {
+                "type": [
+                  "string",
+                  "number",
+                  "array"
+                ]
+              }
+            }
+          },
+          "out": {
+            "type": "array",
+            "description": "Sortie attendue",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "in",
+          "out"
+        ]
+      }
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "tests"
+  ]
+}

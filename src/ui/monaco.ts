@@ -82,7 +82,7 @@ FIN`,
         ],
         [
           "POUR",
-          `POUR K ENTRE $1 ET $2 FAIRE
+          `POUR I ENTRE $1 ET $2
    $3
 FIN`,
         ],
