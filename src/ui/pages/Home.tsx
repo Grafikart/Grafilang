@@ -9,9 +9,12 @@ import {
 } from "@/components/ui/card.tsx";
 import { cn } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
-import { ArrowRightIcon, CompassIcon, SparklesIcon } from "lucide-react";
+import { ArrowRightIcon, BookOpenTextIcon, CompassIcon, SparklesIcon } from "lucide-react";
+import { getFirstChallenge } from "../challanges.ts";
 
 export function Home() {
+  const firstChallenge = getFirstChallenge();
+
   return (
     <div className="flex flex-1 flex-col gap-6 p-4">
       <section className="rounded-xl border border-border/70 bg-card/80 p-6 shadow-2xl shadow-black/20 backdrop-blur md:p-8">
@@ -29,13 +32,26 @@ export function Home() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            {firstChallenge ? (
+              <Link
+                className={cn(buttonVariants({ size: "lg" }), "rounded-2xl")}
+                params={{ slug: firstChallenge.slug }}
+                to="/challenges/$slug"
+              >
+                Ouvrir l&apos;exercice
+                <ArrowRightIcon className="size-4" />
+              </Link>
+            ) : null}
             <Link
-              className={cn(buttonVariants({ size: "lg" }), "rounded-2xl")}
-              params={{ slug: "boucle-1" }}
-              to="/challenges/$slug"
+              className={cn(
+                buttonVariants({ size: "lg", variant: "outline" }),
+                "rounded-2xl",
+              )}
+              params={{ slug: "variables" }}
+              to="/aide/$slug"
             >
-              Ouvrir l&apos;exercice
-              <ArrowRightIcon className="size-4" />
+              <BookOpenTextIcon className="size-4" />
+              Lire l&apos;aide
             </Link>
             <Button className="rounded-2xl" size="lg" variant="outline">
               <SparklesIcon className="size-4" />

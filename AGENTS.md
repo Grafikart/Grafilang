@@ -101,6 +101,7 @@ Règle:
 - Les primitives réutilisables et agnostiques vivent dans `src/components/ui`.
 - Pour les icônes, utiliser `lucide-react`.
 - Pour les overlays et interactions avancées, privilégier `Base UI`.
+- Quand on utilise une icon, privilégier l'import avec le suffix Icon : exemple `BookIcon`
 
 ## Conventions de données
 

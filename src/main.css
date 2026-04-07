@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
@@ -104,6 +105,40 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --typography-body: var(--muted-foreground);
+  --typography-headings: var(--foreground);
+  --typography-lead: var(--muted-foreground);
+  --typography-bold: var(--foreground);
+  --typography-links: var(--foreground);
+  --typography-bullets: var(--muted-foreground);
+  --typography-counters: var(--muted-foreground);
+  --typography-captions: var(--muted-foreground);
+  --typography-code: var(--foreground);
+  --typography-code-bg: var(--muted);
+  --typography-pre-code: var(--foreground);
+  --typography-pre-bg: color-mix(in oklab, var(--background) 86%, transparent);
+  --typography-pre-border: var(--border);
+  --typography-quotes: var(--foreground);
+  --typography-quote-borders: var(--border);
+  --typography-hr: var(--border);
+  --typography-th-borders: var(--border);
+  --typography-td-borders: color-mix(in oklab, var(--border) 72%, transparent);
+  --typography-invert-body: var(--foreground);
+  --typography-invert-headings: var(--foreground);
+  --typography-invert-lead: var(--muted-foreground);
+  --typography-invert-links: var(--foreground);
+  --typography-invert-bold: var(--foreground);
+  --typography-invert-counters: var(--muted-foreground);
+  --typography-invert-bullets: color-mix(in oklab, var(--muted-foreground) 70%, transparent);
+  --typography-invert-hr: var(--border);
+  --typography-invert-quotes: var(--foreground);
+  --typography-invert-quote-borders: var(--border);
+  --typography-invert-captions: var(--muted-foreground);
+  --typography-invert-code: var(--foreground);
+  --typography-invert-pre-code: var(--foreground);
+  --typography-invert-pre-bg: color-mix(in oklab, var(--background) 50%, black);
+  --typography-invert-th-borders: var(--border);
+  --typography-invert-td-borders: color-mix(in oklab, var(--border) 72%, transparent);
 }
 
 .dark {
@@ -138,4 +173,110 @@
   --sidebar-accent-foreground: oklch(0.97 0.01 95);
   --sidebar-border: oklch(0.38 0.02 255 / 0.9);
   --sidebar-ring: oklch(0.78 0.14 74);
+  --typography-body: var(--muted-foreground);
+  --typography-headings: var(--foreground);
+  --typography-lead: var(--muted-foreground);
+  --typography-bold: var(--foreground);
+  --typography-links: var(--foreground);
+  --typography-bullets: color-mix(in oklab, var(--muted-foreground) 88%, transparent);
+  --typography-counters: var(--muted-foreground);
+  --typography-captions: var(--muted-foreground);
+  --typography-code: var(--foreground);
+  --typography-code-bg: color-mix(in oklab, var(--muted) 88%, transparent);
+  --typography-pre-code: var(--foreground);
+  --typography-pre-bg: color-mix(in oklab, var(--background) 70%, var(--card));
+  --typography-pre-border: var(--border);
+  --typography-quotes: var(--foreground);
+  --typography-quote-borders: var(--border);
+  --typography-hr: var(--border);
+  --typography-th-borders: var(--border);
+  --typography-td-borders: color-mix(in oklab, var(--border) 72%, transparent);
+  --typography-invert-body: var(--muted-foreground);
+  --typography-invert-headings: var(--foreground);
+  --typography-invert-lead: color-mix(in oklab, var(--muted-foreground) 88%, white);
+  --typography-invert-links: var(--foreground);
+  --typography-invert-bold: var(--foreground);
+  --typography-invert-counters: color-mix(in oklab, var(--muted-foreground) 88%, white);
+  --typography-invert-bullets: color-mix(in oklab, var(--muted-foreground) 68%, transparent);
+  --typography-invert-hr: color-mix(in oklab, var(--border) 92%, transparent);
+  --typography-invert-quotes: var(--foreground);
+  --typography-invert-quote-borders: color-mix(in oklab, var(--border) 92%, transparent);
+  --typography-invert-captions: color-mix(in oklab, var(--muted-foreground) 84%, white);
+  --typography-invert-code: var(--foreground);
+  --typography-invert-pre-code: color-mix(in oklab, var(--foreground) 82%, var(--muted-foreground));
+  --typography-invert-pre-bg: rgb(0 0 0 / 50%);
+  --typography-invert-th-borders: color-mix(in oklab, var(--border) 92%, transparent);
+  --typography-invert-td-borders: color-mix(in oklab, var(--border) 72%, transparent);
+}
+
+@layer components {
+  .prose {
+    --tw-prose-body: var(--typography-body);
+    --tw-prose-headings: var(--typography-headings);
+    --tw-prose-lead: var(--typography-lead);
+    --tw-prose-bold: var(--typography-bold);
+    --tw-prose-links: var(--typography-links);
+    --tw-prose-bullets: var(--typography-bullets);
+    --tw-prose-counters: var(--typography-counters);
+    --tw-prose-captions: var(--typography-captions);
+    --tw-prose-code: var(--typography-code);
+    --tw-prose-pre-code: var(--typography-pre-code);
+    --tw-prose-pre-bg: var(--typography-pre-bg);
+    --tw-prose-quotes: var(--typography-quotes);
+    --tw-prose-quote-borders: var(--typography-quote-borders);
+    --tw-prose-hr: var(--typography-hr);
+    --tw-prose-th-borders: var(--typography-th-borders);
+    --tw-prose-td-borders: var(--typography-td-borders);
+    --tw-prose-invert-body: var(--typography-invert-body);
+    --tw-prose-invert-headings: var(--typography-invert-headings);
+    --tw-prose-invert-lead: var(--typography-invert-lead);
+    --tw-prose-invert-links: var(--typography-invert-links);
+    --tw-prose-invert-bold: var(--typography-invert-bold);
+    --tw-prose-invert-counters: var(--typography-invert-counters);
+    --tw-prose-invert-bullets: var(--typography-invert-bullets);
+    --tw-prose-invert-hr: var(--typography-invert-hr);
+    --tw-prose-invert-quotes: var(--typography-invert-quotes);
+    --tw-prose-invert-quote-borders: var(--typography-invert-quote-borders);
+    --tw-prose-invert-captions: var(--typography-invert-captions);
+    --tw-prose-invert-code: var(--typography-invert-code);
+    --tw-prose-invert-pre-code: var(--typography-invert-pre-code);
+    --tw-prose-invert-pre-bg: var(--typography-invert-pre-bg);
+    --tw-prose-invert-th-borders: var(--typography-invert-th-borders);
+    --tw-prose-invert-td-borders: var(--typography-invert-td-borders);
+    @apply text-sm leading-7;
+  }
+
+  .prose :where(h1, h2, h3, h4) {
+    @apply font-heading font-semibold leading-tight text-foreground;
+  }
+
+  .prose :where(h1) {
+    @apply text-2xl;
+  }
+
+  .prose :where(h2) {
+    @apply text-xl;
+  }
+
+  .prose :where(h3) {
+    @apply text-base;
+  }
+
+  .prose :where(p, li) {
+    @apply text-sm leading-7;
+  }
+
+  .prose :where(code):not(:where(pre code)) {
+    background: color-mix(in oklab, var(--typography-code-bg) 100%, transparent);
+    @apply rounded-md px-1.5 py-0.5 font-mono text-[0.8rem];
+  }
+
+  .prose :where(pre) {
+    border-color: var(--typography-pre-border);
+    @apply overflow-x-auto rounded-xl border p-4 text-xs;
+  }
+
+  .prose :where(pre code) {
+    @apply bg-transparent p-0 text-inherit;
+  }
 }
