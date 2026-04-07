@@ -49,6 +49,7 @@ export enum TokenType {
   FUNCTION = "FONCTION",
   RETURN = "RETURN",
   PRINT = "AFFICHER",
+  ASK = "DEMANDER",
 
   EOF = "EOF",
 }
@@ -83,6 +84,7 @@ export enum ExpressionType {
   Call = "Call",
   Array = "Array",
   ArrayAccess = "ArrayAccess",
+  Ask = "Ask",
 }
 
 export type LiteralExpression = {
@@ -143,6 +145,12 @@ export type ArrayAccessExpression = {
   position: Position;
 };
 
+export type AskExpression = {
+  type: ExpressionType.Ask;
+  message: Expression;
+  position: Position;
+};
+
 export type Expression =
   | BinaryExpression
   | UnaryExpression
@@ -152,6 +160,7 @@ export type Expression =
   | CallExpression
   | ArrayExpression
   | ArrayAccessExpression
+  | AskExpression
   | VariableExpression;
 
 /**

@@ -1,25 +1,8 @@
-import {
-  createRootRoute,
-  createRoute,
-  createRouter,
-  Link,
-  Outlet,
-} from "@tanstack/react-router";
-import { ArrowRight, Compass, Sparkles } from "lucide-react";
+import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 
 import { ChallengePage } from "./pages/ChallengePage.tsx";
 import { Sidebar } from "./components/Sidebar.tsx";
 import { ChallengeDefinition } from "../type.challenge.ts";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { Home } from "./pages/Home.tsx";
 
 const rootRoute = createRootRoute({

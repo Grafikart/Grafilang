@@ -372,6 +372,15 @@ function factorExpression(): Expression {
 }
 
 function unaryExpression(): Expression {
+  if (eat(TokenType.ASK)) {
+    const operator = previous();
+    const message = unaryExpression();
+    return {
+      type: ExpressionType.Ask,
+      message,
+      position: [operator.position[0], message.position[1], operator.position[2]],
+    };
+  }
   if (eat(TokenType.MINUS, TokenType.BANG)) {
     const operator = previous();
     const right = unaryExpression();

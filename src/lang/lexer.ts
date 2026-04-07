@@ -35,6 +35,7 @@ export const Keywords = new Map([
   [",", TokenType.COMMA],
   ["retourner", TokenType.RETURN],
   ["afficher", TokenType.PRINT],
+  ["demander", TokenType.ASK],
 ]);
 
 let source: string = "";

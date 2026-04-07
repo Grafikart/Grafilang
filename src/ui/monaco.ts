@@ -92,6 +92,7 @@ FIN`,
   $2
 FIN`,
         ],
+        ["DEMANDER", `DEMANDER "$1"`],
       ].map(([label, insertText]) => ({
         label,
         insertText,

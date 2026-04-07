@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { interpret } from "../src/lang/interpreter";
 import { ParseError, RuntimeError } from "../src/lang/errors";
 
@@ -212,5 +212,33 @@ AFFICHER somme / taille(notes)`),
 VAR notes = [10, 20, [5, 12], 13]
 AFFICHER notes[2][1]`),
     ).toEqual(["12"]);
+  });
+
+  test(`DEMANDER renvoie un entier si la saisie est numérique`, () => {
+    vi.stubGlobal("prompt", vi.fn(() => "42"));
+
+    try {
+      expect(
+        run(`
+VAR A = DEMANDER "Quel age ?"
+AFFICHER A`),
+      ).toEqual(["42"]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  test(`DEMANDER renvoie une chaîne si la saisie n'est pas numérique`, () => {
+    vi.stubGlobal("prompt", vi.fn(() => "John"));
+
+    try {
+      expect(
+        run(`
+VAR A = DEMANDER "Quel est votre prénom ?"
+AFFICHER A`),
+      ).toEqual(["John"]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

@@ -3,6 +3,7 @@ import { Memory } from "./memory.ts";
 import {
   ArrayAccessExpression,
   ArrayExpression,
+  AskExpression,
   AssignmentExpression,
   BinaryExpression,
   BlockStatement,
@@ -206,6 +207,8 @@ function evalExpression(expr: Expression): Value {
       return evalArray(expr);
     case ExpressionType.ArrayAccess:
       return evalArrayAcccess(expr);
+    case ExpressionType.Ask:
+      return evalAsk(expr);
   }
   return null;
 }
@@ -368,6 +371,32 @@ function evalArrayAcccess(expr: ArrayAccessExpression): Value {
     );
   }
   return source[index];
+}
+
+function evalAsk(expr: AskExpression): Value {
+  const message = evalExpression(expr.message);
+  if (typeof message !== "string") {
+    throw new RuntimeError(
+      `DEMANDER attend une chaîne de caractères comme message`,
+      expr.message.position,
+    );
+  }
+
+  if (typeof globalThis.prompt !== "function") {
+    throw new RuntimeError(
+      `DEMANDER n'est disponible que dans un environnement interactif`,
+      expr.position,
+    );
+  }
+
+  const answer = globalThis.prompt(message) ?? "";
+  const normalized = answer.trim();
+
+  if (/^-?\d+$/.test(normalized)) {
+    return parseInt(normalized, 10);
+  }
+
+  return answer;
 }
 
 /**
