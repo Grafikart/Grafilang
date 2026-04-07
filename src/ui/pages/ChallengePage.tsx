@@ -1,27 +1,135 @@
+import { useEffect } from "react";
+import { Link } from "@tanstack/react-router";
+import { BookOpenText, Code2 } from "lucide-react";
+
 import { challengeRoute } from "../routes.tsx";
-import { Editor } from "../components/Editor.tsx";
-import { Output } from "../components/Output.tsx";
-import { Card } from "../components/Card.tsx";
 import { Actions } from "../components/Actions.tsx";
+import { Editor } from "../components/Editor.tsx";
+import { Markdown } from "../components/Markdown.tsx";
+import { Output } from "../components/Output.tsx";
+import { TestsPanel } from "../components/TestsPanel.tsx";
+import {
+  closeSuccessDialog,
+  setChallengeTests,
+  useFirstFailedTestIndex,
+  useSuccessDialogOpen,
+  useTestResults,
+} from "../signals/editor.ts";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogClose,
+  DialogDescription,
+  DialogPopup,
+  DialogPortal,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 export function ChallengePage() {
-  const { title, description, code } = challengeRoute.useLoaderData();
+  const { description, code, tests } = challengeRoute.useLoaderData();
+  const testResults = useTestResults();
+  const firstFailedTestIndex = useFirstFailedTestIndex();
+  const successDialogOpen = useSuccessDialogOpen();
+
+  useEffect(() => {
+    setChallengeTests(tests);
+  }, [tests]);
+
   return (
-    <div>
-      <h1 className="challenge-title">{title}</h1>
-      <Actions />
-      <main className="challenge">
-        <div className="challenge__row">
-          <Card className="challenge__description formatted">
-            <h1>{title}</h1>
-            <p>{description}</p>
+    <>
+      <main className="grid flex-1 gap-4 xl:grid-cols-2">
+        <div className="grid gap-4">
+          <Card>
+            <CardHeader className="border-b border-border/70">
+              <CardTitle className="flex items-center gap-2">
+                <BookOpenText className="size-4 text-primary" />
+                Consigne
+              </CardTitle>
+              <CardDescription>
+                Objectifs, contraintes et détails de l&apos;exercice.
+              </CardDescription>
+            </CardHeader>
+            <ScrollArea className="min-h-0 flex-1">
+              <CardContent className="pb-4">
+                <Markdown>{description}</Markdown>
+              </CardContent>
+            </ScrollArea>
+          </Card>
+          <TestsPanel
+            firstFailedTestIndex={firstFailedTestIndex}
+            results={testResults}
+            tests={tests}
+          />
+        </div>
+
+        <div className="grid gap-4">
+          <Card className="gap-0 p-0">
+            <CardHeader className="mb-0 p-4">
+              <CardTitle className="flex items-center gap-2">
+                <Code2 className="size-4 text-primary" />
+                Éditeur
+              </CardTitle>
+              <CardDescription>
+                Rédige puis exécute ton algorithme dans l&apos;atelier central.
+              </CardDescription>
+              <CardAction>
+                <Actions tests={tests} />
+              </CardAction>
+            </CardHeader>
+            <CardContent className="min-h-0 flex-1 p-0">
+              <Editor className="h-full" defaultValue={code} />
+            </CardContent>
           </Card>
         </div>
-        <div className="challenge__row">
-          <Editor defaultValue={code} />
-          <Output />
-        </div>
       </main>
-    </div>
+      <Output />
+      <Dialog
+        onOpenChange={(open) => {
+          if (!open) {
+            closeSuccessDialog();
+          }
+        }}
+        open={successDialogOpen}
+      >
+        <DialogPortal>
+          <DialogBackdrop />
+          <DialogPopup>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <DialogTitle>Bravo, tous les tests passent.</DialogTitle>
+                <DialogDescription>
+                  Ton algorithme valide l&apos;ensemble des cas de test de cet
+                  exercice.
+                </DialogDescription>
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                <DialogClose
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "rounded-2xl",
+                  )}
+                >
+                  Fermer
+                </DialogClose>
+                <Link className={cn(buttonVariants(), "rounded-2xl")} to="/">
+                  Retour accueil
+                </Link>
+              </div>
+            </div>
+          </DialogPopup>
+        </DialogPortal>
+      </Dialog>
+    </>
   );
 }

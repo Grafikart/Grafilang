@@ -4,7 +4,8 @@ import {
   DeclarationStatement,
   Expression,
   ExpressionType,
-  ForStatement,
+  ForEachStatement,
+  ForRangeStatement,
   FunctionStatement,
   IfStatement,
   PrintStatement,
@@ -161,28 +162,49 @@ function whileStatement(): WhileStatement {
   };
 }
 
-function forStatement(): ForStatement {
+function forStatement(): ForRangeStatement | ForEachStatement {
   const forToken = previous();
   const identifier = eatOrFail(
     [TokenType.IDENTIFIER],
     "Nom de variable attendu",
   );
-  eatOrFail([TokenType.FROM], `'Entre' attendu ici`);
-  const start = termExpression();
-  eatOrFail([TokenType.AND], `Mot clef 'et' attendu`);
-  const end = termExpression();
-  const block = blockStatement(
-    [TokenType.END],
-    `'FIN' attendu à la fin d'une boucle`,
-  );
-  return {
-    type: StatementType.For,
-    start: start,
-    end: end,
-    variable: identifier,
-    body: block.body,
-    position: [forToken.position[0], block.position[1], forToken.position[2]],
-  };
+
+  if (eat(TokenType.FROM)) {
+    const start = termExpression();
+    eatOrFail([TokenType.AND], `Mot clef 'et' attendu`);
+    const end = termExpression();
+    eat(TokenType.THEN);
+    const block = blockStatement(
+      [TokenType.END],
+      `'FIN' attendu à la fin d'une boucle`,
+    );
+    return {
+      type: StatementType.ForRange,
+      start: start,
+      end: end,
+      variable: identifier,
+      body: block.body,
+      position: [forToken.position[0], block.position[1], forToken.position[2]],
+    };
+  }
+
+  if (eat(TokenType.IN)) {
+    const source = expression();
+    eat(TokenType.THEN);
+    const block = blockStatement(
+      [TokenType.END],
+      `'FIN' attendu à la fin d'une boucle`,
+    );
+    return {
+      type: StatementType.ForEach,
+      source,
+      variable: identifier,
+      body: block.body,
+      position: [forToken.position[0], block.position[1], forToken.position[2]],
+    };
+  }
+
+  throw new UnexpectedTokenError(peek(), `'ENTRE' ou 'DANS' attendu ici`);
 }
 
 function declarationStatement(): DeclarationStatement {

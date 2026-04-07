@@ -27,6 +27,8 @@ export const Keywords = new Map([
   ["pour", TokenType.FOR],
   ["between", TokenType.FROM],
   ["entre", TokenType.FROM],
+  ["in", TokenType.IN],
+  ["dans", TokenType.IN],
   ["var", TokenType.VAR],
   ["fonction", TokenType.FUNCTION],
   ["function", TokenType.FUNCTION],

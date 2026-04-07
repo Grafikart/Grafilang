@@ -9,7 +9,8 @@ import {
   CallExpression,
   Expression,
   ExpressionType,
-  ForStatement,
+  ForEachStatement,
+  ForRangeStatement,
   FunctionStatement,
   LiteralExpression,
   LogicalExpression,
@@ -31,13 +32,20 @@ import { Callable } from "./callable.ts";
 let blockMemory = new Memory(globals);
 let stdOut: StdOut;
 
-export function interpret(source: string, out: StdOut): void {
+export function interpret(
+  source: string,
+  out: StdOut,
+  inputs: Record<string, unknown> = {},
+): void {
   const ast = buildASTTree(parseTokens(source));
   stdOut = out;
   if (!import.meta.env.TEST) {
     console.log("AST:", ast);
   }
   blockMemory.clear();
+  for (const [name, value] of Object.entries(inputs)) {
+    blockMemory.define(name, normalizeInputValue(value));
+  }
   ast.body.map(evalStatement);
 }
 
@@ -70,8 +78,11 @@ function evalStatement(statement: Statement | null): void {
     case StatementType.While:
       evalWhile(statement);
       return;
-    case StatementType.For:
-      evalFor(statement);
+    case StatementType.ForRange:
+      evalForRange(statement);
+      return;
+    case StatementType.ForEach:
+      evalForEach(statement);
       return;
     case StatementType.Function:
       evalFuncDeclar(statement);
@@ -123,7 +134,7 @@ function evalWhile(statement: WhileStatement): void {
   }
 }
 
-function evalFor(statement: ForStatement): void {
+function evalForRange(statement: ForRangeStatement): void {
   const previousMemory = blockMemory;
   const start = evalExpression(statement.start);
   const end = evalExpression(statement.end);
@@ -145,6 +156,24 @@ function evalFor(statement: ForStatement): void {
   ) {
     blockMemory = new Memory(blockMemory);
     blockMemory.define(statement.variable, i);
+    statement.body.map(evalStatement);
+    blockMemory = previousMemory;
+  }
+}
+
+function evalForEach(statement: ForEachStatement): void {
+  const previousMemory = blockMemory;
+  const source = evalExpression(statement.source);
+  if (!Array.isArray(source)) {
+    throw new RuntimeError(
+      `La source d'une boucle "POUR ... DANS ..." doit être un tableau`,
+      statement.source.position,
+    );
+  }
+
+  for (const value of source) {
+    blockMemory = new Memory(blockMemory);
+    blockMemory.define(statement.variable, value);
     statement.body.map(evalStatement);
     blockMemory = previousMemory;
   }
@@ -390,4 +419,21 @@ function ensureType(
   if (typeof value !== type) {
     throw new RuntimeError(message + ` (${typeof value})`, expression.position);
   }
+}
+
+function normalizeInputValue(value: unknown): Value {
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    value === null
+  ) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(normalizeInputValue);
+  }
+
+  throw new Error("Type d'entrée non supporté");
 }

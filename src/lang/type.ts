@@ -45,6 +45,7 @@ export enum TokenType {
   WHILE = "TantQue",
   FOR = "POUR",
   FROM = "DE",
+  IN = "DANS",
   FUNCTION = "FONCTION",
   RETURN = "RETURN",
   PRINT = "AFFICHER",
@@ -165,7 +166,8 @@ export enum StatementType {
   Block = "Block",
   If = "If",
   While = "While",
-  For = "For",
+  ForRange = "ForRange",
+  ForEach = "ForEach",
   Function = "Function",
   Return = "Return",
 }
@@ -221,11 +223,19 @@ export type WhileStatement = {
   position: Position;
 };
 
-export type ForStatement = {
-  type: StatementType.For;
+export type ForRangeStatement = {
+  type: StatementType.ForRange;
   variable: TokenIdentifier;
   start: Expression;
   end: Expression;
+  body: Statement[];
+  position: Position;
+};
+
+export type ForEachStatement = {
+  type: StatementType.ForEach;
+  variable: TokenIdentifier;
+  source: Expression;
   body: Statement[];
   position: Position;
 };
@@ -242,7 +252,8 @@ export type Statement =
   | BlockStatement
   | IfStatement
   | WhileStatement
-  | ForStatement
+  | ForRangeStatement
+  | ForEachStatement
   | FunctionStatement
   | ReturnStatement
   | DeclarationStatement;

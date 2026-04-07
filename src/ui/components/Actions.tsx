@@ -1,17 +1,24 @@
-import { PlayIcon, SubmitIcon } from "./Icons.tsx";
-import { runCode } from "../signals/editor.ts";
+import { Play, Send } from "lucide-react";
 
-export function Actions() {
+import type { ChallengeDefinition } from "../../type.challenge.ts";
+import { Button } from "@/components/ui/button";
+import { runCode, submitCode } from "../signals/editor.ts";
+
+type Props = {
+  tests: ChallengeDefinition["tests"];
+};
+
+export function Actions({ tests }: Props) {
   return (
-    <div className="actions">
-      <button onClick={runCode} type="button">
-        <PlayIcon />
+    <div className="flex flex-wrap items-center gap-2">
+      <Button onClick={runCode} type="button">
+        <Play />
         Exécuter
-      </button>
-      <button type="button">
-        <SubmitIcon />
+      </Button>
+      <Button onClick={() => submitCode(tests)} type="button" variant="outline">
+        <Send />
         Soumettre
-      </button>
+      </Button>
     </div>
   );
 }

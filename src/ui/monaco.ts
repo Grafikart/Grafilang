@@ -86,6 +86,12 @@ FIN`,
    $3
 FIN`,
         ],
+        [
+          "POUR DANS",
+          `POUR ITEM DANS $1
+  $2
+FIN`,
+        ],
       ].map(([label, insertText]) => ({
         label,
         insertText,

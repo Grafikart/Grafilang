@@ -9,6 +9,7 @@
     "build": "tsc && vite build",
     "build:types": "./src/tools/build-types.ts && prettier src/type.schema.ts --write",
     "test": "vitest",
+    "test:run": "vitest run",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
     "monaco-editor": "^0.48.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
     "shadcn": "^4.1.2",
     "tailwind-merge": "^3.5.0",
     "tw-animate-css": "^1.4.0"

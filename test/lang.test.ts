@@ -136,6 +136,38 @@ describe("Grafilang", () => {
     ).toEqual(["1", "2", "3"]);
   });
 
+  test(`les boucles "for each" sont supportées`, () => {
+    expect(
+      run(`
+        VAR arr = [1, 2, "3"]
+        POUR a DANS arr
+          AFFICHER(a)
+        FIN
+      `),
+    ).toEqual(["1", "2", "3"]);
+  });
+
+  test(`les boucles "for each" acceptent FAIRE`, () => {
+    expect(
+      run(`
+        VAR arr = [1, 2, "3"]
+        POUR a DANS arr FAIRE
+          AFFICHER(a)
+        FIN
+      `),
+    ).toEqual(["1", "2", "3"]);
+  });
+
+  test(`une boucle "for each" exige un tableau`, () => {
+    expect(() =>
+      run(`
+        POUR a DANS 3
+          AFFICHER(a)
+        FIN
+      `),
+    ).toThrowError(RuntimeError);
+  });
+
   test(`on peut déclarer des fonctions`, () => {
     expect(
       run(`

@@ -1,0 +1,29 @@
+{
+  "$schema": "../../challenge.schema.json",
+  "title": "Tableau - Somme",
+  "description": "## Objectif\n\nEcrire un algorithme qui calcule la somme des valeurs d'un tableau.\n\nLa variable `CHIFFRES` est fournie en entrée.\n\nExemple :\n\n```txt\nCHIFFRES = [10, 15, 20, 15, 14, 8]\n```\n\n## Consignes\n\n- parcourir toutes les valeurs du tableau\n- cumuler leur somme dans une variable\n- afficher le resultat final\n",
+  "code": "VAR SOMME = 0\n\nPOUR I ENTRE 0 ET taille(CHIFFRES) - 1\n  SOMME = SOMME + CHIFFRES[I]\nFIN\n\nAFFICHER SOMME",
+  "tests": [
+    {
+      "title": "Additionne une liste de plusieurs entiers",
+      "in": {
+        "CHIFFRES": [10, 15, 20, 15, 14, 8]
+      },
+      "out": ["82"]
+    },
+    {
+      "title": "Fonctionne avec une petite liste",
+      "in": {
+        "CHIFFRES": [1, 2, 3, 4]
+      },
+      "out": ["10"]
+    },
+    {
+      "title": "Fonctionne avec une seule valeur",
+      "in": {
+        "CHIFFRES": [7]
+      },
+      "out": ["7"]
+    }
+  ]
+}

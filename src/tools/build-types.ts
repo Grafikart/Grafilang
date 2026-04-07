@@ -1,3 +1,5 @@
+import { writeFile } from "node:fs/promises";
+
 import { compileFromFile } from "json-schema-to-typescript";
 
 compileFromFile("challenge.schema.json", {
@@ -8,4 +10,4 @@ compileFromFile("challenge.schema.json", {
     }
     return undefined;
   },
-}).then((v) => Bun.write("src/type.challenge.ts", v));
+}).then((v) => writeFile("src/type.challenge.ts", v));
