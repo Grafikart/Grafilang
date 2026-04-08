@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { CompassIcon, TriangleAlertIcon } from "lucide-react";
 
-import { getFirstChallenge } from "../challanges.ts";
+import { getFirstChallenge } from "../challenges.ts";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";

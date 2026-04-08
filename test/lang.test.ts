@@ -241,4 +241,23 @@ AFFICHER A`),
       vi.unstubAllGlobals();
     }
   });
+
+  test(`DEMANDER utilise la valeur ask des entrées pendant les tests`, () => {
+    let out: string[] = [];
+    const stdOut = {
+      push: (s: string) => out.push(s),
+      clear: () => (out = []),
+    };
+
+    interpret(
+      `
+VAR PRIX = DEMANDER "Quel est le prix HT ?"
+AFFICHER PRIX * 1.196
+      `,
+      stdOut,
+      { ask: "100" },
+    );
+
+    expect(out).toEqual(["119.6"]);
+  });
 });

@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../challenge.schema.json",
+  "title": "TVA",
+  "description": "## Objectif\n\nEcrire un algorithme qui demande à l'utilisateur le prix hors taxe d'un objet puis affiche son prix TTC.\n\nLe prix TTC est obtenu en multipliant le prix hors taxe par `1.196`.\n\n## Consignes\n\n- utiliser `DEMANDER` pour récupérer le prix HT\n- stocker cette valeur dans une variable\n- afficher le prix TTC\n",
+  "code": "",
+  "tests": [
+    {
+      "title": "Calcule la TVA pour 100",
+      "in": {
+        "ask": "100"
+      },
+      "out": ["120"]
+    },
+    {
+      "title": "Calcule la TVA pour 50",
+      "in": {
+        "ask": "50"
+      },
+      "out": ["60"]
+    }
+  ]
+}

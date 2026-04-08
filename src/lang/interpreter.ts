@@ -32,6 +32,7 @@ import { Callable } from "./callable.ts";
 
 let blockMemory = new Memory(globals);
 let stdOut: StdOut;
+let askResponses: Array<string | number> = [];
 
 export function interpret(
   source: string,
@@ -44,7 +45,11 @@ export function interpret(
     console.log("AST:", ast);
   }
   blockMemory.clear();
+  askResponses = normalizeAskResponses(inputs.ask);
   for (const [name, value] of Object.entries(inputs)) {
+    if (name === "ask") {
+      continue;
+    }
     blockMemory.define(name, normalizeInputValue(value));
   }
   ast.body.map(evalStatement);
@@ -382,6 +387,10 @@ function evalAsk(expr: AskExpression): Value {
     );
   }
 
+  if (askResponses.length > 0) {
+    return normalizeAskResponse(askResponses.shift()!);
+  }
+
   if (typeof globalThis.prompt !== "function") {
     throw new RuntimeError(
       `DEMANDER n'est disponible que dans un environnement interactif`,
@@ -389,14 +398,7 @@ function evalAsk(expr: AskExpression): Value {
     );
   }
 
-  const answer = globalThis.prompt(message) ?? "";
-  const normalized = answer.trim();
-
-  if (/^-?\d+$/.test(normalized)) {
-    return parseInt(normalized, 10);
-  }
-
-  return answer;
+  return normalizeAskResponse(globalThis.prompt(message) ?? "");
 }
 
 /**
@@ -465,4 +467,40 @@ function normalizeInputValue(value: unknown): Value {
   }
 
   throw new Error("Type d'entrée non supporté");
+}
+
+function normalizeAskResponses(value: unknown): Array<string | number> {
+  if (value === undefined) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((entry) => {
+      if (typeof entry !== "string" && typeof entry !== "number") {
+        throw new Error("Les valeurs de ask doivent être des chaînes ou des nombres");
+      }
+
+      return entry;
+    });
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return [value];
+  }
+
+  throw new Error("La valeur de ask doit être une chaîne, un nombre ou une liste");
+}
+
+function normalizeAskResponse(value: string | number): Value {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  const normalized = value.trim();
+
+  if (/^-?\d+$/.test(normalized)) {
+    return parseInt(normalized, 10);
+  }
+
+  return value;
 }

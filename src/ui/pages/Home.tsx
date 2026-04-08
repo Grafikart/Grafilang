@@ -10,7 +10,7 @@ import {
 import { cn } from "@/lib/utils.ts";
 import { Link } from "@tanstack/react-router";
 import { ArrowRightIcon, BookOpenTextIcon, CompassIcon, SparklesIcon } from "lucide-react";
-import { getFirstChallenge } from "../challanges.ts";
+import { getFirstChallenge } from "../challenges.ts";
 
 export function Home() {
   const firstChallenge = getFirstChallenge();

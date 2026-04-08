@@ -3,7 +3,7 @@ import {Link, useRouterState} from "@tanstack/react-router";
 import {BookOpenText, ChevronRight, Code2, Compass,} from "lucide-react";
 import {Collapsible, CollapsiblePanel, CollapsibleTrigger,} from "@/components/ui/collapsible";
 import {cn} from "@/lib/utils";
-import {challanges} from "../challanges.ts";
+import {challenges} from "../challenges.ts";
 import {helpPages} from "../help.ts";
 
 function SidebarTreeLink({
@@ -87,7 +87,7 @@ export function Sidebar() {
 
   const activeExerciseCategory = useMemo(
     () =>
-      challanges.find((category) =>
+      challenges.find((category) =>
         category.items.some((item) => pathname === `/challenges/${item.slug}`),
       )?.title ?? null,
     [pathname],
@@ -99,7 +99,7 @@ export function Sidebar() {
   );
   const [categoryOpen, setCategoryOpen] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(
-      challanges.map((category) => [
+      challenges.map((category) => [
         category.title,
         category.title === activeExerciseCategory,
       ]),
@@ -180,7 +180,7 @@ export function Sidebar() {
           />
           <CollapsiblePanel className="pl-4">
             <div className="relative ml-2 mt-1 space-y-1.5 border-l border-sidebar-border/70">
-            {challanges.map((category) => {
+            {challenges.map((category) => {
               const isCategoryActive = category.title === activeExerciseCategory;
               const isOpen = categoryOpen[category.title] ?? false;
 

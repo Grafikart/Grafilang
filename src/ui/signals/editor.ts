@@ -81,7 +81,7 @@ export function runCode() {
 
   try {
     stdOut.clear();
-    interpret(source, stdOut, $executionInputs());
+    interpret(source, stdOut, getRunInputs($executionInputs()));
     clearEditorMarkers();
   } catch (e) {
     if (e instanceof CodeError) {
@@ -288,4 +288,9 @@ function clearEditorMarkers() {
   }
 
   MonacoEditor.removeAllMarkers("lang");
+}
+
+function getRunInputs(inputs: TestDefinition["in"]) {
+  const { ask: _ask, ...rest } = inputs;
+  return rest;
 }

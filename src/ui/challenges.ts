@@ -9,7 +9,17 @@ export type ChallengeCategory = {
   items: ChallengeItem[];
 };
 
-export const challanges: ChallengeCategory[] = [
+export const challenges: ChallengeCategory[] = [
+  {
+    title: 'Variables',
+    items: [
+      {
+        title: 'TVA',
+        slug: 'tva',
+        jsonUrl: '/challenges/vars/tva.json'
+      }
+    ]
+  },
   {
     title: "Boucles",
     items: [
@@ -33,7 +43,7 @@ export const challanges: ChallengeCategory[] = [
 ];
 
 export function findChallengeBySlug(slug: string) {
-  for (const category of challanges) {
+  for (const category of challenges) {
     const challenge = category.items.find((item) => item.slug === slug);
     if (challenge) {
       return challenge;
@@ -44,5 +54,5 @@ export function findChallengeBySlug(slug: string) {
 }
 
 export function getFirstChallenge() {
-  return challanges[0]?.items[0] ?? null;
+  return challenges[0]?.items[0] ?? null;
 }

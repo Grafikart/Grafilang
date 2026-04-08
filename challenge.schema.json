@@ -29,6 +29,28 @@
           "in": {
             "type": "object",
             "description": "Variable donnée à l'algorithme en entrée",
+            "properties": {
+              "ask": {
+                "description": "Valeur simulée renvoyée par DEMANDER pendant les tests",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
             "patternProperties": {
               "^[A-Z]+$": {
                 "type": [

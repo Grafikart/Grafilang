@@ -43,6 +43,10 @@ function toExpectedOutput(value: unknown) {
   return typeof value === "string" ? value : toCodeBlock(value);
 }
 
+function getInputLabel(name: string) {
+  return name === "ask" ? "Saisie DEMANDER" : name;
+}
+
 function renderStatusBadge(result: TestResult | undefined) {
   if (!result || result.status === "idle") {
     return null;
@@ -176,7 +180,7 @@ export function TestsPanel({ firstFailedTestIndex, results, tests }: Props) {
                             key={name}
                           >
                             <span className="font-mono font-semibold text-foreground">
-                              - {name} :
+                              - {getInputLabel(name)} :
                             </span>
                             <span className="min-w-0 rounded-md bg-muted px-2 py-1 font-mono text-muted-foreground break-words">
                               {toInlineValue(value)}
